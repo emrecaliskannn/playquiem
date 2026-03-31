@@ -1,0 +1,17 @@
+{
+  "name": "Playquiem",
+  "short_name": "Playquiem",
+  "description": "Your gaming diary. Track every game. Write your requiem.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#070b12",
+  "theme_color": "#070b12",
+  "lang": "en",
+  "scope": "/",
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["games", "entertainment", "social"]
+}

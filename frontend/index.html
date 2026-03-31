@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Playquiem — Oynadığın her oyunu logla, puanla ve arkadaşlarınla paylaş. Oyun günlüğün için Letterboxd."/>
+  <meta name="keywords" content="oyun günlüğü, game diary, game tracker, oyun loglama, game log, letterboxd for games"/>
+  <meta property="og:title" content="Playquiem — A Diary for the Games You Love"/>
+  <meta property="og:description" content="Oynadığın her oyunu logla, puanla ve arkadaşlarınla paylaş."/>
+  <meta property="og:url" content="https://playquiem.com"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:image" content="https://playquiem.com/logo.png"/>
+  <meta property="og:image:width" content="512"/>
+  <meta property="og:image:height" content="512"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Playquiem — A Diary for the Games You Love"/>
+  <meta name="twitter:description" content="Oynadığın her oyunu logla, puanla ve arkadaşlarınla paylaş."/>
+  <meta name="twitter:image" content="https://playquiem.com/logo.png"/>
+  <title>Playquiem — Game Diary & Tracker</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Playquiem is a game diary and tracker. Log games you've played, rate them, write reviews and discover what to play next." />
+  <meta name="keywords" content="game diary, game tracker, video game log, game reviews, gaming journal, what to play, game backlog, letterboxd for games" />
+  <meta name="author" content="Playquiem" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://playquiem.com" />
+
+  <!-- Open Graph (Facebook, Discord) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://playquiem.com" />
+  <meta property="og:title" content="Playquiem — Game Diary & Tracker" />
+  <meta property="og:description" content="Log games you've played, rate them, write reviews and discover what to play next." />
+  <meta property="og:image" content="https://playquiem.com/logo.png" />
+  <meta property="og:site_name" content="Playquiem" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://playquiem.com" />
+  <meta name="twitter:title" content="Playquiem — Game Diary & Tracker" />
+  <meta name="twitter:description" content="Log games you've played, rate them, write reviews and discover what to play next." />
+  <meta name="twitter:image" content="https://playquiem.com/logo.png" />
+
+  <!-- PWA -->
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#070b12" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Playquiem" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Playquiem",
+    "url": "https://playquiem.com",
+    "description": "A game diary and tracker. Log games you have played, rate them, write reviews and discover what to play next.",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1RWSC6TN0Z"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-1RWSC6TN0Z');
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {})
+      })
+    }
+  </script>
+</body>
+</html>

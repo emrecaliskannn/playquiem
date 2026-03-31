@@ -1,0 +1,332 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Playquiem Design System ───────────────────────────────── */
+:root {
+  --pq-mint:       #0ea5e9;
+  --pq-mint-dim:   rgba(148, 245, 216, 0.12);
+  --pq-mint-glow:  rgba(148, 245, 216, 0.25);
+  --pq-bg:         #070b12;
+  --pq-surf:       #0f1c2e;
+  --pq-surf2:      #142236;
+  --pq-surf3:      #1e1e28;
+  --pq-border:     rgba(148, 245, 216, 0.1);
+  --pq-border-dim: rgba(255, 255, 255, 0.05);
+  --pq-text:       #0ea5e9;
+  --pq-text-dim:   rgba(148, 245, 216, 0.55);
+  --pq-text-muted: rgba(148, 245, 216, 0.3);
+  --pq-font:       'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+@layer base {
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--pq-bg) !important;
+    color: var(--pq-mint);
+    font-family: var(--pq-font);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* All headings in mint */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--pq-mint);
+    font-family: var(--pq-font);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Labels, spans, p default to mint or dim mint */
+  p { color: var(--pq-text-dim); }
+
+  a {
+    color: var(--pq-mint);
+    text-decoration: none;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--pq-bg); }
+  ::-webkit-scrollbar-thumb { background: var(--pq-border); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--pq-mint-glow); }
+
+  /* Selection */
+  ::selection { background: var(--pq-mint-dim); color: var(--pq-mint); }
+
+  /* Inputs & selects */
+  input, textarea, select {
+    font-family: var(--pq-font);
+    color: var(--pq-mint);
+    background: var(--pq-surf2);
+    border: 1px solid var(--pq-border);
+    border-radius: 8px;
+  }
+  input::placeholder { color: var(--pq-text-muted); }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--pq-mint-glow);
+    box-shadow: 0 0 0 3px rgba(14,165,233,0.08);
+  }
+  select option { background: var(--pq-surf2); color: var(--pq-mint); }
+
+  /* Buttons reset */
+  button {
+    font-family: var(--pq-font);
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  /* Shimmer skeleton */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--pq-surf) 25%,
+      var(--pq-surf2) 50%,
+      var(--pq-surf) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Glass navbar */
+  .pq-glass {
+    background: rgba(10, 10, 10, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--pq-border);
+  }
+
+  /* Card hover */
+  .card-hover {
+    transition: transform 0.22s cubic-bezier(.4,0,.2,1),
+                box-shadow 0.22s,
+                border-color 0.22s;
+  }
+  .card-hover:hover {
+    transform: translateY(-6px);
+    border-color: var(--pq-mint-glow) !important;
+    box-shadow: 0 14px 48px rgba(14,165,233,0.1);
+  }
+
+  /* Mint button */
+  .pq-btn {
+    background: var(--pq-mint);
+    color: #070b12;
+    font-family: var(--pq-font);
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .pq-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* Ghost button */
+  .pq-btn-ghost {
+    background: transparent;
+    color: var(--pq-mint);
+    font-family: var(--pq-font);
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    padding: 7px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--pq-border);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .pq-btn-ghost:hover {
+    background: var(--pq-mint-dim);
+    border-color: var(--pq-mint-glow);
+  }
+
+  /* Card base */
+  .pq-card {
+    background: var(--pq-surf);
+    border: 1px solid var(--pq-border-dim);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* Mint text shortcuts */
+  .text-mint    { color: var(--pq-mint) !important; }
+  .text-mint-dim { color: var(--pq-text-dim) !important; }
+  .text-mint-muted { color: var(--pq-text-muted) !important; }
+
+  /* Glow effect */
+  .pq-glow {
+    text-shadow: 0 0 20px rgba(14,165,233,0.4);
+  }
+  .pq-glow-border {
+    box-shadow: 0 0 0 1px rgba(14,165,233,0.25),
+                0 0 24px rgba(14,165,233,0.08);
+  }
+
+  /* Section label */
+  .pq-label {
+    font-family: var(--pq-font);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--pq-text-muted);
+  }
+
+  /* Divider */
+  .pq-divider {
+    height: 1px;
+    background: var(--pq-border);
+    margin: 16px 0;
+  }
+
+  /* Font display for section titles */
+  .font-display {
+    font-family: var(--pq-font);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  /* Hide scrollbar on mobile rows */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* ── Override Tailwind color vars to Playquiem palette ── */
+.bg-bg    { background: var(--pq-bg) !important; }
+.bg-surf  { background: var(--pq-surf) !important; }
+.bg-surf2 { background: var(--pq-surf2) !important; }
+.bg-surf3 { background: var(--pq-surf3) !important; }
+.border-border { border-color: var(--pq-border-dim) !important; }
+
+/* Sidebar hover */
+.pq-sidebar-item:hover { background: var(--pq-mint-dim) !important; }
+.pq-sidebar-item:hover .pq-sidebar-label { color: var(--pq-mint) !important; }
+
+/* ── Mobile / PWA Optimizations ────────────────────────────── */
+
+/* Prevent double-tap zoom on buttons and cards */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* Minimum touch target size (48px) */
+button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Smooth momentum scrolling on iOS */
+.no-scrollbar, [style*="overflow-x: auto"], [style*="overflowX:'auto'"] {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe area insets for notched phones */
+.navbar-safe {
+  padding-top: max(0px, env(safe-area-inset-top));
+}
+
+nav {
+  padding-left: max(0px, env(safe-area-inset-left));
+  padding-right: max(0px, env(safe-area-inset-right));
+}
+
+/* Mobile: hide ad sidebars, full-width main content */
+@media (max-width: 1279px) {
+  .xl\:block { display: none !important; }
+  .hidden.xl\:block { display: none !important; }
+}
+
+/* Mobile: game cards larger touch targets */
+@media (max-width: 640px) {
+  /* Slightly bigger cards on mobile for easier tapping */
+  .card-hover { min-width: 110px; }
+
+  /* Full-width sections */
+  section { margin-left: 0 !important; margin-right: 0 !important; }
+
+  /* Bigger nav items */
+  nav a, nav button { min-height: 48px; }
+
+  /* Readable text at mobile sizes */
+  body { font-size: 16px; }
+}
+
+/* Tap highlight color */
+* {
+  -webkit-tap-highlight-color: rgba(148, 245, 216, 0.15);
+}
+
+/* PWA: status bar spacing when installed */
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  nav.pq-glass {
+    top: env(safe-area-inset-top);
+  }
+}
+
+/* ── Page transition ────────────────────────────────────────── */
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* ── Cyber Blue — vivid accent enhancements ─────────────────── */
+
+/* Stronger glow on interactive elements */
+button:focus-visible, a:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* Blue shimmer for loading skeletons */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    #0f1c2e 25%,
+    #142236 50%,
+    #0f1c2e 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+/* Navbar active underline glow */
+nav a.active-link {
+  text-shadow: 0 0 12px rgba(14,165,233,0.6);
+}
+
+/* Card hover — blue border glow */
+.card-hover:hover {
+  box-shadow: 0 0 0 1px rgba(14,165,233,0.4), 0 8px 24px rgba(14,165,233,0.1) !important;
+}
+
+/* Scrollbar — blue tinted */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #070b12; }
+::-webkit-scrollbar-thumb { background: rgba(14,165,233,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(14,165,233,0.55); }
+
+/* Selection highlight */
+::selection { background: rgba(14,165,233,0.25); color: #e0f2fe; }

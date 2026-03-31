@@ -1,0 +1,38 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx}'],
+  theme: {
+    extend: {
+      colors: {
+        bg:     '#070b12',
+        surf:   '#0f1c2e',
+        surf2:  '#17171e',
+        surf3:  '#1e1e28',
+        border: 'rgba(148,245,216,0.1)',
+        mint:   '#0ea5e9',
+        teal:   '#0ea5e9',
+        accent: '#0ea5e9',
+        gold:   '#F5C842',
+        red:    '#E84545',
+        green:  '#2DC653',
+        purple: '#B39DDB',
+        orange: '#F4845F',
+        muted:  'rgba(148,245,216,0.3)',
+      },
+      fontFamily: {
+        sans:    ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+        display: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+      },
+      animation: {
+        shimmer: 'shimmer 1.6s ease-in-out infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '0%':   { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
+        },
+      },
+    },
+  },
+  plugins: [],
+}
