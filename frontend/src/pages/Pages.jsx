@@ -1,4 +1,5 @@
 // ── Profile ──────────────────────────────────────────────────
+import { useSEO } from '../lib/seo'
 import { useState, useEffect, useRef } from 'react'
 import { GameController, BookOpen, SquaresFour, ChartBar, MagnifyingGlass, Globe, UsersThree, Camera, PencilSimple, SignOut, TrendUp } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router-dom'
@@ -82,8 +83,8 @@ export function Profile() {
               alt="avatar"
               style={{
                 width: 80, height: 80, borderRadius: '50%', objectFit: 'cover',
-                border: '2px solid rgba(14,165,233,0.4)',
-                boxShadow: '0 0 0 4px rgba(14,165,233,0.08)',
+                border: '2px solid rgba(102,192,244,0.4)',
+                boxShadow: '0 0 0 4px rgba(102,192,244,0.08)',
                 transition: 'opacity 0.2s',
                 opacity: uploading ? 0.5 : 1,
               }}
@@ -91,11 +92,11 @@ export function Profile() {
           ) : (
             <div style={{
               width: 80, height: 80, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #0ea5e9, rgba(14,165,233,0.35))',
+              background: 'linear-gradient(135deg, #60a5fa, rgba(102,192,244,0.35))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1.8rem', fontWeight: 900, color: '#070b12',
+              fontSize: '1.8rem', fontWeight: 900, color: 'var(--bg)',
               fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-              border: '2px solid rgba(14,165,233,0.4)',
+              border: '2px solid rgba(102,192,244,0.4)',
               opacity: uploading ? 0.5 : 1, transition: 'opacity 0.2s',
             }}>
               {(profile?.username || '?')[0].toUpperCase()}
@@ -105,7 +106,7 @@ export function Profile() {
           {/* Hover overlay */}
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            background: uploading ? 'rgba(0,0,0,0.5)' : 'rgba(14,165,233,0.12)',
+            background: uploading ? 'rgba(0,0,0,0.5)' : 'rgba(102,192,244,0.12)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             opacity: uploading ? 1 : 0, transition: 'opacity 0.2s',
           }}
@@ -115,8 +116,8 @@ export function Profile() {
             {uploading ? (
               <div style={{
                 width: 20, height: 20, borderRadius: '50%',
-                border: '2px solid rgba(14,165,233,0.3)',
-                borderTopColor: '#0ea5e9',
+                border: '2px solid rgba(102,192,244,0.3)',
+                borderTopColor: 'var(--accent)',
                 animation: 'spin 0.7s linear infinite',
               }}/>
             ) : (
@@ -142,14 +143,14 @@ export function Profile() {
             {nowPlaying && (
               <div style={{
                 display:'inline-flex', alignItems:'center', gap:7,
-                background:'rgba(14,165,233,0.1)', border:'1px solid rgba(14,165,233,0.3)',
+                background:'rgba(102,192,244,0.1)', border:'1px solid rgba(102,192,244,0.3)',
                 borderRadius:20, padding:'4px 12px',
               }}>
-                <span style={{ width:7, height:7, borderRadius:'50%', background:'#0ea5e9',
+                <span style={{ width:7, height:7, borderRadius:'50%', background:'var(--accent)',
                                 flexShrink:0, animation:'pulse 1.5s ease infinite',
-                                boxShadow:'0 0 8px rgba(14,165,233,0.6)' }}/>
+                                boxShadow:'0 0 8px rgba(102,192,244,0.6)' }}/>
                 <span style={{ fontFamily:'"Helvetica Neue",Helvetica,Arial,sans-serif',
-                                fontSize:'0.68rem', fontWeight:700, color:'#0ea5e9',
+                                fontSize:'0.68rem', fontWeight:700, color:'var(--accent)',
                                 overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap',
                                 maxWidth:140 }}>
                   Playing: {nowPlaying.title}
@@ -179,12 +180,12 @@ export function Profile() {
                 padding:'7px 16px', borderRadius:10, cursor:'pointer',
                 fontFamily:'"Helvetica Neue",Helvetica,Arial,sans-serif',
                 fontSize:'0.78rem', fontWeight:700,
-                background:'rgba(14,165,233,0.08)',
-                border:'1px solid rgba(14,165,233,0.3)',
-                color:'#0ea5e9', transition:'all 0.15s',
+                background:'rgba(102,192,244,0.08)',
+                border:'1px solid rgba(102,192,244,0.3)',
+                color:'var(--accent)', transition:'all 0.15s',
               }}
-              onMouseEnter={e=>{e.currentTarget.style.background='rgba(14,165,233,0.16)'}}
-              onMouseLeave={e=>{e.currentTarget.style.background='rgba(14,165,233,0.08)'}}>
+              onMouseEnter={e=>{e.currentTarget.style.background='rgba(102,192,244,0.16)'}}
+              onMouseLeave={e=>{e.currentTarget.style.background='rgba(102,192,244,0.08)'}}>
               Change Avatar
             </button>
             <button onClick={() => setEditing(e => !e)}
@@ -301,7 +302,7 @@ export function Library() {
   const [loading, setLoading] = useState(true)
   const nav = useNavigate()
   const F = '"Helvetica Neue",Helvetica,Arial,sans-serif'
-  const T = '#0ea5e9'
+  const T = 'var(--accent)'
 
   useEffect(() => {
     if (!user) { nav('/auth'); return }
@@ -310,8 +311,8 @@ export function Library() {
 
   const STATUS_COLOR = {
     Played:  { color:'#2dc653', bg:'rgba(45,198,83,0.1)',   border:'rgba(45,198,83,0.3)'   },
-    Playing: { color:'#0ea5e9', bg:'rgba(14,165,233,0.1)', border:'rgba(14,165,233,0.3)' },
-    Wishlist:{ color:'#6366f1', bg:'rgba(179,157,219,0.1)', border:'rgba(179,157,219,0.3)' },
+    Playing: { color:'var(--accent)', bg:'rgba(102,192,244,0.1)', border:'rgba(102,192,244,0.3)' },
+    Wishlist:{ color:'var(--accent2)', bg:'rgba(179,157,219,0.1)', border:'rgba(179,157,219,0.3)' },
     Dropped: { color:'#e84545', bg:'rgba(232,69,69,0.1)',   border:'rgba(232,69,69,0.3)'   },
   }
 
@@ -332,25 +333,25 @@ export function Library() {
       <div style={{ marginBottom:28 }}>
         <h1 style={{ fontFamily:F, fontWeight:900, fontSize:'2rem', color:T,
                       letterSpacing:'-0.03em', margin:'0 0 4px' }}>My Library</h1>
-        <p style={{ fontFamily:F, fontSize:'0.82rem', color:'rgba(14,165,233,0.4)' }}>
+        <p style={{ fontFamily:F, fontSize:'0.82rem', color:'rgba(102,192,244,0.4)' }}>
           {logs.length} games · {STATUS_COUNTS.Playing||0} currently playing
         </p>
       </div>
 
       {/* Status summary cards */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))', gap:10, marginBottom:24 }}>
-        {[['All', logs.length, T, 'rgba(14,165,233,0.08)', 'rgba(14,165,233,0.2)'],
+        {[['All', logs.length, T, 'rgba(102,192,244,0.08)', 'rgba(102,192,244,0.2)'],
           ...Object.entries(STATUS_COLOR).map(([s,c]) => [s, STATUS_COUNTS[s]||0, c.color, c.bg, c.border])
         ].map(([label, count, color, bg, border]) => (
           <button key={label} onClick={() => setFilter(label === 'All' ? '' : label)} style={{
             padding:'12px 10px', borderRadius:12, cursor:'pointer', textAlign:'center',
-            background: (filter===label || (label==='All'&&!filter)) ? bg : 'rgba(14,165,233,0.02)',
-            border: `1px solid ${(filter===label || (label==='All'&&!filter)) ? border : 'rgba(14,165,233,0.08)'}`,
+            background: (filter===label || (label==='All'&&!filter)) ? bg : 'rgba(102,192,244,0.02)',
+            border: `1px solid ${(filter===label || (label==='All'&&!filter)) ? border : 'rgba(102,192,244,0.08)'}`,
             transition:'all 0.15s',
           }}>
             <div style={{ fontFamily:F, fontWeight:900, fontSize:'1.4rem', color, lineHeight:1 }}>{count}</div>
             <div style={{ fontFamily:F, fontSize:'0.6rem', fontWeight:700, letterSpacing:'0.1em',
-                          textTransform:'uppercase', color:'rgba(14,165,233,0.4)', marginTop:4 }}>{label}</div>
+                          textTransform:'uppercase', color:'rgba(102,192,244,0.4)', marginTop:4 }}>{label}</div>
           </button>
         ))}
       </div>
@@ -358,7 +359,7 @@ export function Library() {
       {/* Toolbar */}
       <div style={{ display:'flex', gap:10, marginBottom:20, alignItems:'center', flexWrap:'wrap' }}>
         <select value={sort} onChange={e=>setSort(e.target.value)} style={{
-          background:'rgba(14,165,233,0.06)', border:'1px solid rgba(14,165,233,0.2)',
+          background:'rgba(102,192,244,0.06)', border:'1px solid rgba(102,192,244,0.2)',
           borderRadius:10, padding:'8px 12px', fontFamily:F, fontSize:'0.78rem',
           color:T, outline:'none', cursor:'pointer', colorScheme:'dark',
         }}>
@@ -370,9 +371,9 @@ export function Library() {
           {[['grid',<SquaresFour size={16}/>],['list',<SquaresFour size={16} weight='fill'/>]].map(([v,ico]) => (
             <button key={v} onClick={()=>setView(v)} style={{
               width:36, height:36, borderRadius:8, cursor:'pointer',
-              background: view===v ? 'rgba(14,165,233,0.15)' : 'transparent',
-              border: `1px solid ${view===v ? 'rgba(14,165,233,0.4)' : 'rgba(14,165,233,0.12)'}`,
-              color: view===v ? T : 'rgba(14,165,233,0.35)',
+              background: view===v ? 'rgba(102,192,244,0.15)' : 'transparent',
+              border: `1px solid ${view===v ? 'rgba(102,192,244,0.4)' : 'rgba(102,192,244,0.12)'}`,
+              color: view===v ? T : 'rgba(102,192,244,0.35)',
               fontSize:'1rem', display:'flex', alignItems:'center', justifyContent:'center',
             }}>{ico}</button>
           ))}
@@ -392,10 +393,10 @@ export function Library() {
             return (
               <div key={row.id} onClick={()=>row.igdb_id&&nav('/game/'+row.igdb_id)}
                 style={{ cursor:'pointer', borderRadius:14, overflow:'hidden',
-                          border:'1px solid rgba(14,165,233,0.08)', background:'#0f1c2e',
+                          border:'1px solid rgba(102,192,244,0.08)', background:'var(--surface)',
                           transition:'all 0.18s', position:'relative' }}
-                onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.borderColor='rgba(14,165,233,0.3)'}}
-                onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.borderColor='rgba(14,165,233,0.08)'}}>
+                onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.borderColor='rgba(102,192,244,0.3)'}}
+                onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.borderColor='rgba(102,192,244,0.08)'}}>
                 <img src={row.cover_url||'https://placehold.co/264x352/111116/94F5D8?text='}
                      style={{ width:'100%', aspectRatio:'3/4', objectFit:'cover', display:'block' }}
                      onError={e=>e.target.src='https://placehold.co/264x352/111116/94F5D8?text='}/>
@@ -405,7 +406,7 @@ export function Library() {
                     {row.title}
                   </div>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                    <div style={{ fontSize:'0.65rem', color:'rgba(14,165,233,0.5)' }}>
+                    <div style={{ fontSize:'0.65rem', color:'rgba(102,192,244,0.5)' }}>
                       {'★'.repeat(row.rating||0)}
                     </div>
                     {row.status && (
@@ -428,10 +429,10 @@ export function Library() {
             return (
               <div key={row.id} onClick={()=>row.igdb_id&&nav('/game/'+row.igdb_id)}
                 style={{ display:'flex', alignItems:'center', gap:14, cursor:'pointer',
-                          background:'#0f1c2e', border:'1px solid rgba(14,165,233,0.08)',
+                          background:'var(--surface)', border:'1px solid rgba(102,192,244,0.08)',
                           borderRadius:12, padding:'10px 14px', transition:'border-color 0.15s' }}
-                onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(14,165,233,0.28)'}
-                onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(14,165,233,0.08)'}>
+                onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(102,192,244,0.28)'}
+                onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(102,192,244,0.08)'}>
                 <img src={row.cover_url||'https://placehold.co/264x352/111116/94F5D8?text='}
                      style={{ width:40, height:54, objectFit:'cover', borderRadius:6, flexShrink:0 }}
                      onError={e=>e.target.src='https://placehold.co/264x352/111116/94F5D8?text='}/>
@@ -440,13 +441,13 @@ export function Library() {
                                 overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                     {row.title}
                   </div>
-                  <div style={{ fontFamily:F, fontSize:'0.68rem', color:'rgba(14,165,233,0.4)', marginTop:2 }}>
+                  <div style={{ fontFamily:F, fontSize:'0.68rem', color:'rgba(102,192,244,0.4)', marginTop:2 }}>
                     {row.platform && <span>{row.platform} · </span>}
                     {row.logged_at && new Date(row.logged_at).toLocaleDateString('en',{month:'short',year:'numeric'})}
                   </div>
                 </div>
                 <div style={{ display:'flex', alignItems:'center', gap:12, flexShrink:0 }}>
-                  <span style={{ fontFamily:F, fontSize:'0.75rem', color:'rgba(14,165,233,0.6)' }}>
+                  <span style={{ fontFamily:F, fontSize:'0.75rem', color:'rgba(102,192,244,0.6)' }}>
                     {'★'.repeat(row.rating||0)}
                   </span>
                   {row.status && (
@@ -473,7 +474,7 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true)
   const nav = useNavigate()
   const F = '"Helvetica Neue",Helvetica,Arial,sans-serif'
-  const T = '#0ea5e9'
+  const T = 'var(--accent)'
 
   useEffect(() => {
     if (!user) { nav('/auth'); return }
@@ -521,25 +522,25 @@ export function Dashboard() {
   })
   const maxMonth = Math.max(...months.map(m=>m.count), 1)
 
-  const STAT_COLORS = ['#0ea5e9','#2dc653','#6366f1','#f5c518']
+  const STAT_COLORS = ['var(--accent)','#2dc653','var(--accent2)','#f5c518']
 
-  const Card = ({ value, label, color='#0ea5e9', sub }) => (
-    <div style={{ background:'rgba(14,165,233,0.04)', border:'1px solid rgba(14,165,233,0.1)',
+  const Card = ({ value, label, color='var(--accent)', sub }) => (
+    <div style={{ background:'rgba(102,192,244,0.04)', border:'1px solid rgba(102,192,244,0.1)',
                   borderRadius:16, padding:'20px 18px', textAlign:'center' }}>
       <div style={{ fontFamily:F, fontWeight:900, fontSize:'2.2rem', color, lineHeight:1, marginBottom:4 }}>
         {value}
       </div>
       <div style={{ fontFamily:F, fontSize:'0.6rem', fontWeight:800, letterSpacing:'0.12em',
-                    textTransform:'uppercase', color:'rgba(14,165,233,0.4)' }}>{label}</div>
-      {sub && <div style={{ fontFamily:F, fontSize:'0.58rem', color:'rgba(14,165,233,0.25)', marginTop:3 }}>{sub}</div>}
+                    textTransform:'uppercase', color:'rgba(102,192,244,0.4)' }}>{label}</div>
+      {sub && <div style={{ fontFamily:F, fontSize:'0.58rem', color:'rgba(102,192,244,0.25)', marginTop:3 }}>{sub}</div>}
     </div>
   )
 
   const SectionTitle = ({ children }) => (
     <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16 }}>
       <h2 style={{ fontFamily:F, fontWeight:800, fontSize:'0.68rem', letterSpacing:'0.16em',
-                    textTransform:'uppercase', color:'rgba(14,165,233,0.4)', margin:0 }}>{children}</h2>
-      <div style={{ flex:1, height:1, background:'rgba(14,165,233,0.08)' }}/>
+                    textTransform:'uppercase', color:'rgba(102,192,244,0.4)', margin:0 }}>{children}</h2>
+      <div style={{ flex:1, height:1, background:'rgba(102,192,244,0.08)' }}/>
     </div>
   )
 
@@ -548,7 +549,7 @@ export function Dashboard() {
       <div style={{ marginBottom:32 }}>
         <h1 style={{ fontFamily:F, fontWeight:900, fontSize:'2rem', color:T,
                       letterSpacing:'-0.03em', margin:'0 0 4px' }}>Dashboard</h1>
-        <p style={{ fontFamily:F, fontSize:'0.82rem', color:'rgba(14,165,233,0.4)' }}>
+        <p style={{ fontFamily:F, fontSize:'0.82rem', color:'rgba(102,192,244,0.4)' }}>
           @{profile?.username} · your gaming stats
         </p>
       </div>
@@ -564,20 +565,20 @@ export function Dashboard() {
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:36 }}>
 
         {/* Rating distribution */}
-        <div style={{ background:'rgba(14,165,233,0.03)', border:'1px solid rgba(14,165,233,0.08)',
+        <div style={{ background:'rgba(102,192,244,0.03)', border:'1px solid rgba(102,192,244,0.08)',
                       borderRadius:16, padding:'20px 22px' }}>
           <SectionTitle>Rating Distribution</SectionTitle>
           {ratingDist.map(({n,count}) => (
             <div key={n} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
-              <span style={{ fontFamily:F, fontSize:'0.75rem', color:'rgba(14,165,233,0.6)', width:40 }}>
+              <span style={{ fontFamily:F, fontSize:'0.75rem', color:'rgba(102,192,244,0.6)', width:40 }}>
                 {'★'.repeat(n)}
               </span>
-              <div style={{ flex:1, height:8, background:'rgba(14,165,233,0.06)', borderRadius:4, overflow:'hidden' }}>
+              <div style={{ flex:1, height:8, background:'rgba(102,192,244,0.06)', borderRadius:4, overflow:'hidden' }}>
                 <div style={{ height:'100%', borderRadius:4, background:T,
                               width:`${(count/maxRating)*100}%`, transition:'width 0.8s ease',
                               opacity: 0.4 + (n/5)*0.6 }}/>
               </div>
-              <span style={{ fontFamily:F, fontSize:'0.7rem', color:'rgba(14,165,233,0.5)', width:20, textAlign:'right' }}>
+              <span style={{ fontFamily:F, fontSize:'0.7rem', color:'rgba(102,192,244,0.5)', width:20, textAlign:'right' }}>
                 {count}
               </span>
             </div>
@@ -585,17 +586,17 @@ export function Dashboard() {
         </div>
 
         {/* Status breakdown */}
-        <div style={{ background:'rgba(14,165,233,0.03)', border:'1px solid rgba(14,165,233,0.08)',
+        <div style={{ background:'rgba(102,192,244,0.03)', border:'1px solid rgba(102,192,244,0.08)',
                       borderRadius:16, padding:'20px 22px' }}>
           <SectionTitle>Status Breakdown</SectionTitle>
-          {[['Played','#2dc653'],['Playing',T],['Wishlist','#6366f1'],['Dropped','#e84545']].map(([s,c]) => (
+          {[['Played','#2dc653'],['Playing',T],['Wishlist','var(--accent2)'],['Dropped','#e84545']].map(([s,c]) => (
             <div key={s} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:10 }}>
               <span style={{ fontFamily:F, fontSize:'0.72rem', fontWeight:700, color:c, width:60 }}>{s}</span>
-              <div style={{ flex:1, height:8, background:'rgba(14,165,233,0.06)', borderRadius:4, overflow:'hidden' }}>
+              <div style={{ flex:1, height:8, background:'rgba(102,192,244,0.06)', borderRadius:4, overflow:'hidden' }}>
                 <div style={{ height:'100%', borderRadius:4, background:c,
                               width:`${((statuses[s]||0)/total)*100}%`, opacity:0.7, transition:'width 0.8s ease' }}/>
               </div>
-              <span style={{ fontFamily:F, fontSize:'0.7rem', color:'rgba(14,165,233,0.5)', width:20, textAlign:'right' }}>
+              <span style={{ fontFamily:F, fontSize:'0.7rem', color:'rgba(102,192,244,0.5)', width:20, textAlign:'right' }}>
                 {statuses[s]||0}
               </span>
             </div>
@@ -604,34 +605,34 @@ export function Dashboard() {
       </div>
 
       {/* Monthly activity bar chart */}
-      <div style={{ background:'rgba(14,165,233,0.03)', border:'1px solid rgba(14,165,233,0.08)',
+      <div style={{ background:'rgba(102,192,244,0.03)', border:'1px solid rgba(102,192,244,0.08)',
                     borderRadius:16, padding:'20px 22px', marginBottom:36 }}>
         <SectionTitle>Monthly Activity (Last 6 Months)</SectionTitle>
         <div style={{ display:'flex', gap:8, alignItems:'flex-end', height:80 }}>
           {months.map(({label,count}) => (
             <div key={label} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
-              <span style={{ fontFamily:F, fontSize:'0.6rem', color:'rgba(14,165,233,0.5)' }}>{count||''}</span>
+              <span style={{ fontFamily:F, fontSize:'0.6rem', color:'rgba(102,192,244,0.5)' }}>{count||''}</span>
               <div style={{ width:'100%', borderRadius:6, background:T, opacity:0.7,
                             height: count ? `${Math.max(8,(count/maxMonth)*60)}px` : 4,
                             transition:'height 0.8s ease' }}/>
-              <span style={{ fontFamily:F, fontSize:'0.62rem', color:'rgba(14,165,233,0.4)' }}>{label}</span>
+              <span style={{ fontFamily:F, fontSize:'0.62rem', color:'rgba(102,192,244,0.4)' }}>{label}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Platform breakdown */}
-      <div style={{ background:'rgba(14,165,233,0.03)', border:'1px solid rgba(14,165,233,0.08)',
+      <div style={{ background:'rgba(102,192,244,0.03)', border:'1px solid rgba(102,192,244,0.08)',
                     borderRadius:16, padding:'20px 22px', marginBottom:36 }}>
         <SectionTitle>Top Platforms</SectionTitle>
         {topPlats.map(([plat,count]) => (
           <div key={plat} style={{ display:'flex', alignItems:'center', gap:12, marginBottom:10 }}>
-            <span style={{ fontFamily:F, fontSize:'0.78rem', color:'rgba(14,165,233,0.6)', width:140, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{plat}</span>
-            <div style={{ flex:1, height:8, background:'rgba(14,165,233,0.06)', borderRadius:4, overflow:'hidden' }}>
+            <span style={{ fontFamily:F, fontSize:'0.78rem', color:'rgba(102,192,244,0.6)', width:140, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{plat}</span>
+            <div style={{ flex:1, height:8, background:'rgba(102,192,244,0.06)', borderRadius:4, overflow:'hidden' }}>
               <div style={{ height:'100%', borderRadius:4, background:T, opacity:0.65,
                             width:`${(count/total)*100}%`, transition:'width 0.8s ease' }}/>
             </div>
-            <span style={{ fontFamily:F, fontSize:'0.72rem', color:'rgba(14,165,233,0.5)', width:24, textAlign:'right' }}>{count}</span>
+            <span style={{ fontFamily:F, fontSize:'0.72rem', color:'rgba(102,192,244,0.5)', width:24, textAlign:'right' }}>{count}</span>
           </div>
         ))}
       </div>
@@ -642,17 +643,17 @@ export function Dashboard() {
         {logs.slice(0,6).map(row => (
           <div key={row.id} onClick={()=>row.igdb_id&&nav('/game/'+row.igdb_id)}
             style={{ cursor:'pointer', borderRadius:12, overflow:'hidden',
-                      border:'1px solid rgba(14,165,233,0.08)', background:'#0f1c2e',
+                      border:'1px solid rgba(102,192,244,0.08)', background:'var(--surface)',
                       transition:'all 0.18s' }}
-            onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-3px)';e.currentTarget.style.borderColor='rgba(14,165,233,0.3)'}}
-            onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.borderColor='rgba(14,165,233,0.08)'}}>
+            onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-3px)';e.currentTarget.style.borderColor='rgba(102,192,244,0.3)'}}
+            onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.borderColor='rgba(102,192,244,0.08)'}}>
             <img src={row.cover_url||'https://placehold.co/264x352/111116/94F5D8?text='}
                  style={{ width:'100%', aspectRatio:'3/4', objectFit:'cover', display:'block' }}
                  onError={e=>e.target.src='https://placehold.co/264x352/111116/94F5D8?text='}/>
             <div style={{ padding:'6px 8px' }}>
               <div style={{ fontFamily:F, fontSize:'0.68rem', fontWeight:700, color:T,
                             overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{row.title}</div>
-              <div style={{ fontSize:'0.6rem', color:'rgba(14,165,233,0.5)', marginTop:2 }}>{'★'.repeat(row.rating||0)}</div>
+              <div style={{ fontSize:'0.6rem', color:'rgba(102,192,244,0.5)', marginTop:2 }}>{'★'.repeat(row.rating||0)}</div>
             </div>
           </div>
         ))}
@@ -671,7 +672,7 @@ export function Search() {
   const nav = useNavigate()
   const { user } = useAuthStore()
   const F = '"Helvetica Neue",Helvetica,Arial,sans-serif'
-  const T = '#0ea5e9'
+  const T = 'var(--accent)'
   const API = import.meta.env.VITE_API_URL || 'https://playquiem.onrender.com'
 
   const doSearch = async (overrideQ) => {
@@ -694,7 +695,7 @@ export function Search() {
       <div style={{ marginBottom:28 }}>
         <h1 style={{ fontFamily:F, fontWeight:900, fontSize:'2rem', color:T,
                       letterSpacing:'-0.03em', margin:'0 0 4px' }}>Search</h1>
-        <p style={{ fontFamily:F, fontSize:'0.82rem', color:'rgba(14,165,233,0.4)' }}>
+        <p style={{ fontFamily:F, fontSize:'0.82rem', color:'rgba(102,192,244,0.4)' }}>
           Find games, players, reviews
         </p>
       </div>
@@ -703,7 +704,7 @@ export function Search() {
       <div style={{ display:'flex', gap:10, marginBottom:20, flexWrap:'wrap' }}>
         <div style={{ flex:1, minWidth:240, position:'relative' }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-               stroke="rgba(14,165,233,0.4)" strokeWidth="2.5"
+               stroke="rgba(102,192,244,0.4)" strokeWidth="2.5"
                style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', flexShrink:0 }}>
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
@@ -712,27 +713,27 @@ export function Search() {
             placeholder={mode==='games' ? 'Search any game…' : 'Search members…'}
             style={{
               width:'100%', padding:'12px 16px 12px 42px', boxSizing:'border-box',
-              background:'rgba(14,165,233,0.06)', border:'1px solid rgba(14,165,233,0.2)',
+              background:'rgba(102,192,244,0.06)', border:'1px solid rgba(102,192,244,0.2)',
               borderRadius:12, fontFamily:F, fontSize:'0.92rem', color:T,
               caretColor:T, outline:'none', transition:'border-color 0.15s',
             }}
-            onFocus={e=>e.target.style.borderColor='rgba(14,165,233,0.5)'}
-            onBlur={e=>e.target.style.borderColor='rgba(14,165,233,0.2)'}/>
+            onFocus={e=>e.target.style.borderColor='rgba(102,192,244,0.5)'}
+            onBlur={e=>e.target.style.borderColor='rgba(102,192,244,0.2)'}/>
         </div>
         <div style={{ display:'flex', gap:6 }}>
           {[['games',' Games'],['members',' Members']].map(([m,label]) => (
             <button key={m} onClick={()=>{setMode(m);setResults([]);setSearched(false)}} style={{
               padding:'10px 16px', borderRadius:12, cursor:'pointer',
               fontFamily:F, fontWeight:700, fontSize:'0.8rem',
-              background: mode===m ? 'rgba(14,165,233,0.15)' : 'transparent',
-              border: `1px solid ${mode===m ? 'rgba(14,165,233,0.4)' : 'rgba(14,165,233,0.15)'}`,
-              color: mode===m ? T : 'rgba(14,165,233,0.4)',
+              background: mode===m ? 'rgba(102,192,244,0.15)' : 'transparent',
+              border: `1px solid ${mode===m ? 'rgba(102,192,244,0.4)' : 'rgba(102,192,244,0.15)'}`,
+              color: mode===m ? T : 'rgba(102,192,244,0.4)',
               transition:'all 0.15s',
             }}>{label}</button>
           ))}
           <button onClick={()=>doSearch()} style={{
             padding:'10px 20px', borderRadius:12, cursor:'pointer',
-            background:T, color:'#070b12', border:'none',
+            background:T, color:'var(--bg)', border:'none',
             fontFamily:F, fontWeight:900, fontSize:'0.82rem',
           }}>Search</button>
         </div>
@@ -740,7 +741,7 @@ export function Search() {
 
       {/* Results count */}
       {searched && !loading && (
-        <p style={{ fontFamily:F, fontSize:'0.78rem', color:'rgba(14,165,233,0.35)', marginBottom:16 }}>
+        <p style={{ fontFamily:F, fontSize:'0.78rem', color:'rgba(102,192,244,0.35)', marginBottom:16 }}>
           {results.length} result{results.length!==1?'s':''} for "{q}"
         </p>
       )}
@@ -758,10 +759,10 @@ export function Search() {
           {results.map(g => (
             <div key={g.id} onClick={()=>nav(`/game/${g.id}`)}
               style={{ cursor:'pointer', borderRadius:14, overflow:'hidden',
-                        border:'1px solid rgba(14,165,233,0.08)', background:'#0f1c2e',
+                        border:'1px solid rgba(102,192,244,0.08)', background:'var(--surface)',
                         transition:'all 0.18s' }}
-              onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.borderColor='rgba(14,165,233,0.3)'}}
-              onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.borderColor='rgba(14,165,233,0.08)'}}>
+              onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px)';e.currentTarget.style.borderColor='rgba(102,192,244,0.3)'}}
+              onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0)';e.currentTarget.style.borderColor='rgba(102,192,244,0.08)'}}>
               <img src={g.cover||'https://placehold.co/264x352/111116/94F5D8?text='}
                    style={{ width:'100%', aspectRatio:'3/4', objectFit:'cover', display:'block' }}
                    onError={e=>e.target.src='https://placehold.co/264x352/111116/94F5D8?text='}/>
@@ -770,7 +771,7 @@ export function Search() {
                               overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', marginBottom:3 }}>
                   {g.title}
                 </div>
-                <div style={{ fontFamily:F, fontSize:'0.62rem', color:'rgba(14,165,233,0.4)', display:'flex', justifyContent:'space-between' }}>
+                <div style={{ fontFamily:F, fontSize:'0.62rem', color:'rgba(102,192,244,0.4)', display:'flex', justifyContent:'space-between' }}>
                   <span>{g.year||''}</span>
                   {g.rating>0 && <span>★ {g.rating}</span>}
                 </div>
@@ -782,19 +783,19 @@ export function Search() {
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
           {results.map(u => (
             <div key={u.id} style={{ display:'flex', alignItems:'center', gap:14,
-                                      background:'#0f1c2e', border:'1px solid rgba(14,165,233,0.08)',
+                                      background:'var(--surface)', border:'1px solid rgba(102,192,244,0.08)',
                                       borderRadius:14, padding:'14px 16px', transition:'border-color 0.15s' }}
-              onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(14,165,233,0.25)'}
-              onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(14,165,233,0.08)'}>
+              onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(102,192,244,0.25)'}
+              onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(102,192,244,0.08)'}>
               <div style={{ width:44, height:44, borderRadius:'50%', flexShrink:0,
-                            background:'linear-gradient(135deg,#0ea5e9,rgba(14,165,233,0.3))',
+                            background:'linear-gradient(135deg,#60a5fa,rgba(102,192,244,0.3))',
                             display:'flex', alignItems:'center', justifyContent:'center',
-                            fontFamily:F, fontWeight:800, fontSize:'1rem', color:'#070b12' }}>
+                            fontFamily:F, fontWeight:800, fontSize:'1rem', color:'var(--bg)' }}>
                 {(u.username||'?')[0].toUpperCase()}
               </div>
               <div style={{ flex:1, minWidth:0, cursor:'pointer' }} onClick={()=>nav(`/profile/${u.id}`)}>
                 <div style={{ fontFamily:F, fontWeight:700, fontSize:'0.9rem', color:T }}>@{u.username}</div>
-                {u.bio && <div style={{ fontFamily:F, fontSize:'0.72rem', color:'rgba(14,165,233,0.4)',
+                {u.bio && <div style={{ fontFamily:F, fontSize:'0.72rem', color:'rgba(102,192,244,0.4)',
                                         overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{u.bio}</div>}
               </div>
               {user && u.id !== user.id && (
@@ -805,7 +806,7 @@ export function Search() {
                 }} style={{
                   padding:'7px 16px', borderRadius:10, cursor:'pointer',
                   fontFamily:F, fontWeight:700, fontSize:'0.75rem',
-                  background:'rgba(14,165,233,0.08)', border:'1px solid rgba(14,165,233,0.25)',
+                  background:'rgba(102,192,244,0.08)', border:'1px solid rgba(102,192,244,0.25)',
                   color:T, transition:'all 0.15s',
                 }}>Follow</button>
               )}
@@ -819,6 +820,7 @@ export function Search() {
 
 // ── Community ─────────────────────────────────────────────────
 export function Community() {
+  useSEO({ title: 'Community', description: 'See what games the Playquiem community is playing, rating and reviewing.' })
   const [reviews,  setReviews]  = useState([])
   const [feed,     setFeed]     = useState([])
   const [members,  setMembers]  = useState([])
@@ -826,7 +828,7 @@ export function Community() {
   const { user } = useAuthStore()
   const nav = useNavigate()
   const F = '"Helvetica Neue",Helvetica,Arial,sans-serif'
-  const T = '#0ea5e9'
+  const T = 'var(--accent)'
 
   useEffect(() => {
     getRecentReviews(20).then(setReviews)
@@ -837,8 +839,8 @@ export function Community() {
   const SectionTitle = ({ children }) => (
     <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
       <h2 style={{ fontFamily:F, fontWeight:800, fontSize:'0.68rem', letterSpacing:'0.16em',
-                    textTransform:'uppercase', color:'rgba(14,165,233,0.4)', margin:0 }}>{children}</h2>
-      <div style={{ flex:1, height:1, background:'rgba(14,165,233,0.08)' }}/>
+                    textTransform:'uppercase', color:'rgba(102,192,244,0.4)', margin:0 }}>{children}</h2>
+      <div style={{ flex:1, height:1, background:'rgba(102,192,244,0.08)' }}/>
     </div>
   )
 
@@ -847,19 +849,19 @@ export function Community() {
       <div style={{ marginBottom:28 }}>
         <h1 style={{ fontFamily:F, fontWeight:900, fontSize:'2rem', color:T,
                       letterSpacing:'-0.03em', margin:'0 0 4px' }}>Community</h1>
-        <p style={{ fontFamily:F, fontSize:'0.82rem', color:'rgba(14,165,233,0.4)' }}>
+        <p style={{ fontFamily:F, fontSize:'0.82rem', color:'rgba(102,192,244,0.4)' }}>
           See what everyone is playing and thinking
         </p>
       </div>
 
       {/* Tabs */}
-      <div style={{ display:'flex', gap:4, marginBottom:28, borderBottom:'1px solid rgba(14,165,233,0.08)', paddingBottom:0 }}>
+      <div style={{ display:'flex', gap:4, marginBottom:28, borderBottom:'1px solid rgba(102,192,244,0.08)', paddingBottom:0 }}>
         {[['reviews',' Reviews'],['activity',' Activity'],['members',' Members']].map(([key,label]) => (
           <button key={key} onClick={()=>setTab(key)} style={{
             padding:'10px 18px', background:'transparent', border:'none',
             borderBottom: `2px solid ${tab===key ? T : 'transparent'}`,
             fontFamily:F, fontWeight:700, fontSize:'0.8rem',
-            color: tab===key ? T : 'rgba(14,165,233,0.35)',
+            color: tab===key ? T : 'rgba(102,192,244,0.35)',
             cursor:'pointer', transition:'color 0.15s', marginBottom:-1,
           }}>{label}</button>
         ))}
@@ -898,30 +900,30 @@ export function Community() {
           ) : (
             <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
               {feed.map((rv,i) => (
-                <div key={i} style={{ display:'flex', gap:14, background:'#0f1c2e',
-                                        border:'1px solid rgba(14,165,233,0.08)',
+                <div key={i} style={{ display:'flex', gap:14, background:'var(--surface)',
+                                        border:'1px solid rgba(102,192,244,0.08)',
                                         borderRadius:14, padding:'14px 16px' }}>
                   <div style={{ width:38, height:38, borderRadius:'50%', flexShrink:0,
-                                background:'linear-gradient(135deg,#0ea5e9,rgba(14,165,233,0.3))',
+                                background:'linear-gradient(135deg,#60a5fa,rgba(102,192,244,0.3))',
                                 display:'flex', alignItems:'center', justifyContent:'center',
-                                fontFamily:F, fontWeight:800, color:'#070b12' }}>
+                                fontFamily:F, fontWeight:800, color:'var(--bg)' }}>
                     {(rv.display_name||rv.username||'?')[0].toUpperCase()}
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
-                    <div style={{ fontFamily:F, fontSize:'0.78rem', color:'rgba(14,165,233,0.6)', marginBottom:4 }}>
+                    <div style={{ fontFamily:F, fontSize:'0.78rem', color:'rgba(102,192,244,0.6)', marginBottom:4 }}>
                       <span style={{ fontWeight:700, color:T }}>@{rv.username}</span> logged a game
                     </div>
                     <div style={{ fontFamily:F, fontWeight:700, fontSize:'0.88rem', color:T }}>{rv.title}</div>
                     {rv.review && (
-                      <div style={{ fontFamily:F, fontSize:'0.75rem', color:'rgba(14,165,233,0.45)',
-                                    marginTop:5, fontStyle:'italic', borderLeft:'2px solid rgba(14,165,233,0.15)',
+                      <div style={{ fontFamily:F, fontSize:'0.75rem', color:'rgba(102,192,244,0.45)',
+                                    marginTop:5, fontStyle:'italic', borderLeft:'2px solid rgba(102,192,244,0.15)',
                                     paddingLeft:10, overflow:'hidden', display:'-webkit-box',
                                     WebkitLineClamp:2, WebkitBoxOrient:'vertical' }}>
                         "{rv.review}"
                       </div>
                     )}
                   </div>
-                  <div style={{ fontFamily:F, fontSize:'0.75rem', color:'rgba(14,165,233,0.5)', flexShrink:0 }}>
+                  <div style={{ fontFamily:F, fontSize:'0.75rem', color:'rgba(102,192,244,0.5)', flexShrink:0 }}>
                     {'★'.repeat(rv.rating||0)}
                   </div>
                 </div>
@@ -942,14 +944,14 @@ export function Community() {
               {members.map(u => (
                 <div key={u.id} onClick={()=>nav(`/profile/${u.id}`)}
                   style={{ display:'flex', alignItems:'center', gap:12, cursor:'pointer',
-                            background:'#0f1c2e', border:'1px solid rgba(14,165,233,0.08)',
+                            background:'var(--surface)', border:'1px solid rgba(102,192,244,0.08)',
                             borderRadius:14, padding:'14px', transition:'all 0.15s' }}
-                  onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(14,165,233,0.3)';e.currentTarget.style.transform='translateY(-2px)'}}
-                  onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(14,165,233,0.08)';e.currentTarget.style.transform='translateY(0)'}}>
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(102,192,244,0.3)';e.currentTarget.style.transform='translateY(-2px)'}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(102,192,244,0.08)';e.currentTarget.style.transform='translateY(0)'}}>
                   <div style={{ width:42, height:42, borderRadius:'50%', flexShrink:0,
-                                background:'linear-gradient(135deg,#0ea5e9,rgba(14,165,233,0.3))',
+                                background:'linear-gradient(135deg,#60a5fa,rgba(102,192,244,0.3))',
                                 display:'flex', alignItems:'center', justifyContent:'center',
-                                fontFamily:F, fontWeight:900, fontSize:'1rem', color:'#070b12' }}>
+                                fontFamily:F, fontWeight:900, fontSize:'1rem', color:'var(--bg)' }}>
                     {(u.username||'?')[0].toUpperCase()}
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
@@ -958,7 +960,7 @@ export function Community() {
                       @{u.username}
                     </div>
                     {u.bio && (
-                      <div style={{ fontFamily:F, fontSize:'0.68rem', color:'rgba(14,165,233,0.35)',
+                      <div style={{ fontFamily:F, fontSize:'0.68rem', color:'rgba(102,192,244,0.35)',
                                     overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
                         {u.bio}
                       </div>

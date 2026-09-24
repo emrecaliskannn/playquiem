@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useSEO } from '../lib/seo'
 import { ArrowLeft, Play, Plus, Check } from '@phosphor-icons/react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useGame } from '../hooks/useGames'
@@ -7,7 +8,7 @@ import { useAuthStore } from '../store/authStore'
 import { isLogged, getGameReviews, getMyLikes } from '../lib/db'
 import LogModal from '../components/LogModal'
 
-const T = '#0ea5e9'
+const T = 'var(--accent)'
 const FONT = '"Helvetica Neue",Helvetica,Arial,sans-serif'
 const PH = 'https://placehold.co/264x352/0a0a0a/94F5D8?text='
 
@@ -34,13 +35,13 @@ function ScoreRing({ value, label }) {
       </div>
       <div style={{ fontFamily:FONT, fontSize:'0.58rem', fontWeight:700,
                     letterSpacing:'0.1em', textTransform:'uppercase',
-                    color:'rgba(14,165,233,0.4)' }}>{label}</div>
+                    color:'rgba(102,192,244,0.4)' }}>{label}</div>
     </div>
   )
 }
 
 // ── Tag chip ──────────────────────────────────────────────────
-function Tag({ label, color=T, bg='rgba(14,165,233,0.08)' }) {
+function Tag({ label, color=T, bg='rgba(102,192,244,0.08)' }) {
   return (
     <span style={{
       fontSize:'0.7rem', padding:'4px 12px', borderRadius:20,
@@ -59,7 +60,7 @@ function Screenshots({ shots }) {
       <SectionTitle>Screenshots</SectionTitle>
       {/* Main */}
       <div style={{ borderRadius:14, overflow:'hidden', marginBottom:10,
-                    border:'1px solid rgba(14,165,233,0.08)', aspectRatio:'16/9' }}>
+                    border:'1px solid rgba(102,192,244,0.08)', aspectRatio:'16/9' }}>
         <img src={shots[active]} alt="screenshot"
              style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
              onError={e=>e.target.style.display='none'}/>
@@ -93,9 +94,9 @@ function SectionTitle({ children }) {
       <h2 style={{
         fontFamily:FONT, fontWeight:800, fontSize:'0.68rem',
         letterSpacing:'0.16em', textTransform:'uppercase',
-        color:'rgba(14,165,233,0.4)', margin:0,
+        color:'rgba(102,192,244,0.4)', margin:0,
       }}>{children}</h2>
-      <div style={{ flex:1, height:1, background:'rgba(14,165,233,0.08)' }}/>
+      <div style={{ flex:1, height:1, background:'rgba(102,192,244,0.08)' }}/>
     </div>
   )
 }
@@ -112,6 +113,8 @@ export default function GameDetail() {
   const [imgLoaded, setImgLoaded] = useState(false)
   const [myLikes,  setMyLikes]  = useState(new Set())
 
+  useSEO(game ? { title: game.title, description: `${game.title} — Log, rate and review on Playquiem`, image: game.cover } : {})
+
   useEffect(() => {
     if (!game) return
     if (user) {
@@ -124,12 +127,12 @@ export default function GameDetail() {
 
   if (loading) return (
     <div style={{ display:'flex', justifyContent:'center', alignItems:'center',
-                  minHeight:'100vh', background:'#070b12' }}>
+                  minHeight:'100vh', background:'var(--bg)' }}>
       <Spinner size="lg"/>
     </div>
   )
   if (error || !game) return (
-    <div style={{ textAlign:'center', paddingTop:120, color:'rgba(14,165,233,0.4)', fontFamily:FONT }}>
+    <div style={{ textAlign:'center', paddingTop:120, color:'rgba(102,192,244,0.4)', fontFamily:FONT }}>
       Game not found
     </div>
   )
@@ -139,7 +142,7 @@ export default function GameDetail() {
   const releaseYear = game.year || ''
 
   return (
-    <div style={{ background:'#070b12', minHeight:'100vh' }}>
+    <div style={{ background:'var(--bg)', minHeight:'100vh' }}>
 
       {/* ═══ LETTERBOXD-STYLE FULL-WIDTH BANNER ═══ */}
       <div style={{ position:'relative', overflow:'hidden' }}>
@@ -162,7 +165,7 @@ export default function GameDetail() {
               }
             }}/>
           ) : (
-            <div style={{ width:'100%', height:'100%', background:'linear-gradient(135deg,#0f1c2e,#142236)' }}/>
+            <div style={{ width:'100%', height:'100%', background:'linear-gradient(135deg,#13131e,#1a1a2e)' }}/>
           )}
           {/* Extra dark overlay for games without wide screenshots */}
           <div style={{
@@ -172,7 +175,7 @@ export default function GameDetail() {
           {/* Gradient fades */}
           <div style={{
             position:'absolute', bottom:0, left:0, right:0, height:'85%',
-            background:'linear-gradient(to top, #070b12 0%, rgba(7,11,18,0.92) 35%, rgba(7,11,18,0.4) 70%, transparent 100%)',
+            background:'linear-gradient(to top, #09090f 0%, rgba(7,11,18,0.92) 35%, rgba(7,11,18,0.4) 70%, transparent 100%)',
           }}/>
           <div style={{
             position:'absolute', inset:0,
@@ -182,13 +185,13 @@ export default function GameDetail() {
           <button onClick={() => nav(-1)} style={{
             position:'absolute', top:88, left:28, zIndex:10,
             background:'rgba(7,11,18,0.65)', backdropFilter:'blur(12px)',
-            border:'1px solid rgba(14,165,233,0.2)',
+            border:'1px solid rgba(102,192,244,0.2)',
             borderRadius:8, padding:'6px 14px', cursor:'pointer',
-            fontFamily:FONT, fontSize:'0.75rem', color:'rgba(14,165,233,0.7)',
+            fontFamily:FONT, fontSize:'0.75rem', color:'rgba(102,192,244,0.7)',
             display:'inline-flex', alignItems:'center', gap:6, transition:'all 0.15s',
           }}
-          onMouseEnter={e=>{e.currentTarget.style.background='rgba(14,165,233,0.15)';e.currentTarget.style.color='#0ea5e9'}}
-          onMouseLeave={e=>{e.currentTarget.style.background='rgba(7,11,18,0.65)';e.currentTarget.style.color='rgba(14,165,233,0.7)'}}>
+          onMouseEnter={e=>{e.currentTarget.style.background='rgba(102,192,244,0.15)';e.currentTarget.style.color='var(--accent)'}}
+          onMouseLeave={e=>{e.currentTarget.style.background='rgba(7,11,18,0.65)';e.currentTarget.style.color='rgba(102,192,244,0.7)'}}>
             <ArrowLeft size={14}/> Back
           </button>
         </div>
@@ -196,8 +199,8 @@ export default function GameDetail() {
         {/* Cover + Info overlaid on banner bottom */}
         <div style={{
           position:'relative', marginTop:-200, zIndex:5,
-          padding:'0 32px 40px',
-          display:'flex', gap:28, alignItems:'flex-end', flexWrap:'wrap',
+          padding:'0 clamp(16px,4vw,32px) clamp(20px,4vw,40px)',
+          display:'flex', gap:'clamp(16px,3vw,28px)', alignItems:'flex-end', flexWrap:'wrap',
         }}>
           {/* Cover */}
           <div style={{ flexShrink:0, position:'relative' }}>
@@ -205,15 +208,15 @@ export default function GameDetail() {
               onLoad={() => setImgLoaded(true)}
               onError={e => e.target.src = PH}
               style={{
-                width:190, borderRadius:12, display:'block',
-                boxShadow:'0 32px 80px rgba(0,0,0,0.95), 0 0 0 2px rgba(14,165,233,0.2)',
+                width:'clamp(100px,25vw,190px)', borderRadius:12, display:'block',
+                boxShadow:'0 32px 80px rgba(0,0,0,0.95), 0 0 0 2px rgba(102,192,244,0.2)',
                 opacity: imgLoaded ? 1 : 0, transition:'opacity 0.4s ease',
               }}
             />
             {logged && (
               <div style={{
                 position:'absolute', bottom:-10, left:'50%', transform:'translateX(-50%)',
-                background:'#2dc653', color:'#070b12',
+                background:'#2dc653', color:'var(--bg)',
                 fontFamily:FONT, fontWeight:800, fontSize:'0.6rem',
                 padding:'3px 10px', borderRadius:20, whiteSpace:'nowrap',
               }}>LOGGED</div>
@@ -226,14 +229,14 @@ export default function GameDetail() {
               <div style={{
                 fontFamily:FONT, fontSize:'0.62rem', fontWeight:800,
                 letterSpacing:'0.2em', textTransform:'uppercase',
-                color:'rgba(14,165,233,0.55)', marginBottom:6,
+                color:'rgba(102,192,244,0.55)', marginBottom:6,
               }}>{game.franchise}</div>
             )}
             <h1 style={{
               fontFamily:FONT, fontWeight:900,
               fontSize:'clamp(2rem, 5vw, 3.5rem)',
               letterSpacing:'-0.03em', lineHeight:1,
-              color:'#ffffff', margin:'0 0 8px',
+              color:'var(--text)', margin:'0 0 8px',
               textShadow:'0 2px 24px rgba(0,0,0,0.9)',
             }}>{game.title}</h1>
             <div style={{
@@ -267,7 +270,7 @@ export default function GameDetail() {
                 <Tag key={m} label={m} color="#2dc653" bg="rgba(45,198,83,0.08)"/>
               ))}
               {game.platforms?.slice(0,3).map(p => (
-                <Tag key={p} label={p} color="#6366f1" bg="rgba(99,102,241,0.08)"/>
+                <Tag key={p} label={p} color="var(--accent2)" bg="rgba(99,102,241,0.08)"/>
               ))}
             </div>
 
@@ -281,24 +284,24 @@ export default function GameDetail() {
                   </div>
                 ) : (
                   <button onClick={() => setLogOpen(true)} style={{
-                    background:'#0ea5e9', color:'#070b12', border:'none', borderRadius:10,
+                    background:'var(--accent)', color:'var(--bg)', border:'none', borderRadius:10,
                     fontFamily:FONT, fontWeight:900, fontSize:'0.88rem',
                     padding:'11px 26px', cursor:'pointer', letterSpacing:'0.03em',
-                    boxShadow:'0 8px 32px rgba(14,165,233,0.3)', transition:'all 0.15s',
+                    boxShadow:'0 8px 32px rgba(102,192,244,0.3)', transition:'all 0.15s',
                   }}
-                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 14px 40px rgba(14,165,233,0.45)'}}
-                  onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 8px 32px rgba(14,165,233,0.3)'}}>
+                  onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='0 14px 40px rgba(102,192,244,0.45)'}}
+                  onMouseLeave={e=>{e.currentTarget.style.transform='none';e.currentTarget.style.boxShadow='0 8px 32px rgba(102,192,244,0.3)'}}>
                     <Plus size={16} weight="bold"/> Log this Game
                   </button>
                 )
               ) : (
                 <button onClick={() => nav('/auth')} style={{
-                  background:'transparent', color:'#0ea5e9', cursor:'pointer',
-                  border:'1px solid rgba(14,165,233,0.35)', borderRadius:10,
+                  background:'transparent', color:'var(--accent)', cursor:'pointer',
+                  border:'1px solid rgba(102,192,244,0.35)', borderRadius:10,
                   fontFamily:FONT, fontWeight:700, fontSize:'0.85rem',
                   padding:'10px 22px', transition:'background 0.15s',
                 }}
-                onMouseEnter={e=>e.currentTarget.style.background='rgba(14,165,233,0.1)'}
+                onMouseEnter={e=>e.currentTarget.style.background='rgba(102,192,244,0.1)'}
                 onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                   Sign in to log
                 </button>
@@ -324,7 +327,7 @@ export default function GameDetail() {
       </div>
 
       {/* ═══ CONTENT ═══ */}
-      <div style={{ maxWidth:1100, margin:'0 auto', padding:'40px 32px 60px' }}>
+      <div style={{ maxWidth:1100, margin:'0 auto', padding:'40px clamp(16px,4vw,32px) 60px' }}>
 
         {/* Summary */}
         {game.summary && (
@@ -332,8 +335,8 @@ export default function GameDetail() {
             <SectionTitle>About</SectionTitle>
             <p style={{
               fontFamily:FONT, fontSize:'0.92rem', lineHeight:1.8,
-              color:'rgba(14,165,233,0.6)',
-              borderLeft:`2px solid rgba(14,165,233,0.18)`, paddingLeft:18,
+              color:'rgba(102,192,244,0.6)',
+              borderLeft:`2px solid rgba(102,192,244,0.18)`, paddingLeft:18,
               maxWidth:720,
             }}>{game.summary}</p>
           </div>
@@ -344,8 +347,8 @@ export default function GameDetail() {
 
           {/* Meta panel */}
           <div style={{
-            background:'rgba(14,165,233,0.03)',
-            border:'1px solid rgba(14,165,233,0.08)',
+            background:'rgba(102,192,244,0.03)',
+            border:'1px solid rgba(102,192,244,0.08)',
             borderRadius:16, padding:'20px 22px',
             alignSelf:'start',
           }}>
@@ -360,13 +363,13 @@ export default function GameDetail() {
             ].filter(([,v]) => v).map(([label, value]) => (
               <div key={label} style={{
                 display:'flex', flexDirection:'column', gap:2,
-                padding:'9px 0', borderBottom:'1px solid rgba(14,165,233,0.05)',
+                padding:'9px 0', borderBottom:'1px solid rgba(102,192,244,0.05)',
               }}>
                 <span style={{ fontFamily:FONT, fontSize:'0.58rem', fontWeight:800,
                                 letterSpacing:'0.1em', textTransform:'uppercase',
-                                color:'rgba(14,165,233,0.3)' }}>{label}</span>
+                                color:'rgba(102,192,244,0.3)' }}>{label}</span>
                 <span style={{ fontFamily:FONT, fontSize:'0.82rem', fontWeight:500,
-                                color:'rgba(14,165,233,0.75)' }}>{value}</span>
+                                color:'rgba(102,192,244,0.75)' }}>{value}</span>
               </div>
             ))}
           </div>
@@ -380,7 +383,7 @@ export default function GameDetail() {
               <div style={{ marginBottom:24 }}>
                 <SectionTitle>Trailer</SectionTitle>
                 <div style={{ borderRadius:14, overflow:'hidden',
-                              border:'1px solid rgba(14,165,233,0.08)', aspectRatio:'16/9' }}>
+                              border:'1px solid rgba(102,192,244,0.08)', aspectRatio:'16/9' }}>
                   <iframe width="100%" height="100%"
                     src={`https://www.youtube.com/embed/${game.videos[0].id}?rel=0`}
                     frameBorder="0" allowFullScreen

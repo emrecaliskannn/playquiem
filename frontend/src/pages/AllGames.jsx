@@ -5,6 +5,7 @@ import { useInfiniteScroll } from '../hooks/useGames'
 import { GameCard, SkeletonCard, Spinner } from '../components/ui'
 import LogModal from '../components/LogModal'
 import { useAuthStore } from '../store/authStore'
+import { useSEO } from '../lib/seo'
 import toast from 'react-hot-toast'
 
 const GENRES = [
@@ -35,9 +36,9 @@ const SORTS = [
 
 
 const SEL = {
-  background: 'rgba(14,165,233,0.07)',
-  borderColor: 'rgba(14,165,233,0.25)',
-  color: '#0ea5e9',
+  background: 'rgba(102,192,244,0.07)',
+  borderColor: 'rgba(102,192,244,0.25)',
+  color: 'var(--text)',
   colorScheme: 'dark',
   fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
 }
@@ -47,10 +48,11 @@ const LABEL = {
   fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
   fontSize: '0.6rem', fontWeight: 800,
   letterSpacing: '0.14em', textTransform: 'uppercase',
-  color: '#0ea5e9', marginBottom: 6,
+  color: 'var(--accent)', marginBottom: 6,
 }
 
 export default function AllGames() {
+  useSEO({ title: 'Browse Games', description: 'Browse over 500,000 games. Search, filter by genre and discover your next game.' })
   const [q,        setQ]        = useState('')
   const [genre,    setGenre]    = useState('')
   const [sort,     setSort]     = useState('rating')
@@ -76,18 +78,18 @@ export default function AllGames() {
         <h1 style={{
           fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
           fontWeight: 900, fontSize: '2rem', letterSpacing: '-0.03em',
-          color: '#0ea5e9', marginBottom: 4,
+          color: 'var(--accent)', marginBottom: 4,
         }}> All Games</h1>
         <p style={{
           fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-          fontSize: '0.82rem', color: 'rgba(14,165,233,0.4)',
+          fontSize: '0.82rem', color: 'rgba(102,192,244,0.4)',
         }}>Browse 500,000+ games — type to search live</p>
       </div>
 
       {/* ── Filter bar ── */}
       <div style={{
-        background: 'linear-gradient(135deg, #0f1c2e, #142236)',
-        border: '1px solid rgba(14,165,233,0.18)',
+        background: 'linear-gradient(135deg, #13131e, #1a1a2e)',
+        border: '1px solid rgba(102,192,244,0.18)',
         borderRadius: 16, padding: '18px 20px', marginBottom: 20,
       }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, alignItems: 'flex-end' }}>
@@ -103,22 +105,22 @@ export default function AllGames() {
                 autoComplete="off"
                 style={{
                   width: '100%', padding: '9px 36px 9px 14px',
-                  borderRadius: 10, border: '1px solid rgba(14,165,233,0.25)',
-                  background: 'rgba(14,165,233,0.07)',
+                  borderRadius: 10, border: '1px solid rgba(102,192,244,0.25)',
+                  background: 'rgba(102,192,244,0.07)',
                   fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                  fontSize: '0.88rem', color: '#0ea5e9', caretColor: '#0ea5e9',
+                  fontSize: '0.88rem', color: 'var(--text)', caretColor: 'var(--accent)',
                   outline: 'none', boxSizing: 'border-box',
                   transition: 'border-color 0.15s',
                 }}
-                onFocus={e => e.target.style.borderColor = 'rgba(14,165,233,0.55)'}
-                onBlur={e  => e.target.style.borderColor = 'rgba(14,165,233,0.25)'}
+                onFocus={e => e.target.style.borderColor = 'rgba(102,192,244,0.55)'}
+                onBlur={e  => e.target.style.borderColor = 'rgba(102,192,244,0.25)'}
               />
               {q && (
                 <button onClick={() => setQ('')} style={{
                   position: 'absolute', right: 10, top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'none', border: 'none',
-                  color: 'rgba(14,165,233,0.45)', cursor: 'pointer',
+                  color: 'rgba(102,192,244,0.45)', cursor: 'pointer',
                   fontSize: 18, lineHeight: 1, padding: 0,
                 }}>×</button>
               )}
@@ -126,7 +128,7 @@ export default function AllGames() {
             {q && q !== debouncedQ && (
               <p style={{
                 fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                fontSize: '0.6rem', color: 'rgba(14,165,233,0.4)', marginTop: 4,
+                fontSize: '0.6rem', color: 'rgba(102,192,244,0.4)', marginTop: 4,
               }}>Searching…</p>
             )}
           </div>
@@ -144,13 +146,7 @@ export default function AllGames() {
             </select>
           </div>
 
-          {/* Console */}
-          <div style={{ flex: '1 1 150px' }}>
-            <label style={{
-              ...LABEL,
-              color: 'rgba(14,165,233,0.5)' || 'rgba(14,165,233,0.5)',
-            }}>Console</label>
-</div>
+
 
           {/* Sort */}
           <div style={{ flex: '1 1 140px' }}>
@@ -174,11 +170,11 @@ export default function AllGames() {
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 padding: '3px 10px', borderRadius: 20, fontSize: '0.7rem', fontWeight: 700,
                 fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                background: 'rgba(14,165,233,0.12)', border: '1px solid rgba(14,165,233,0.35)',
-                color: '#0ea5e9',
+                background: 'rgba(102,192,244,0.12)', border: '1px solid rgba(102,192,244,0.35)',
+                color: 'var(--accent)',
               }}>
                 {genre}
-                <button onClick={() => setGenre('')} style={{ background:'none', border:'none', color:'rgba(14,165,233,0.5)', cursor:'pointer', fontSize:14, lineHeight:1, padding:0 }}>×</button>
+                <button onClick={() => setGenre('')} style={{ background:'none', border:'none', color:'rgba(102,192,244,0.5)', cursor:'pointer', fontSize:14, lineHeight:1, padding:0 }}>×</button>
               </span>
             )}
           </div>
@@ -189,7 +185,7 @@ export default function AllGames() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
         <p style={{
           fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-          fontSize: '0.78rem', color: 'rgba(14,165,233,0.4)',
+          fontSize: '0.78rem', color: 'rgba(102,192,244,0.4)',
         }}>
           {loading && games.length === 0 ? 'Loading…'
             : `${games.length} games`
@@ -206,9 +202,10 @@ export default function AllGames() {
         <>
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-            gap: 14,
+            gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+            gap: 12,
             alignItems: 'start',
+            padding: '0 4px',
           }}>
             {loading && games.length === 0 &&
               Array.from({ length: 20 }).map((_, i) => <SkeletonCard key={i} />)}
@@ -231,7 +228,7 @@ export default function AllGames() {
             <p style={{
               textAlign: 'center', paddingTop: 16,
               fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-              fontSize: '0.72rem', color: 'rgba(14,165,233,0.25)',
+              fontSize: '0.72rem', color: 'rgba(102,192,244,0.25)',
             }}>
               — {games.length} games loaded —
             </p>
@@ -243,11 +240,11 @@ export default function AllGames() {
               <div style={{ fontSize: 48, marginBottom: 14 }}></div>
               <p style={{
                 fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                fontWeight: 800, fontSize: '1rem', color: '#0ea5e9', marginBottom: 6,
+                fontWeight: 800, fontSize: '1rem', color: 'var(--accent)', marginBottom: 6,
               }}>No games found</p>
               <p style={{
                 fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                fontSize: '0.8rem', color: 'rgba(14,165,233,0.35)',
+                fontSize: '0.8rem', color: 'rgba(102,192,244,0.35)',
               }}>Try a different search or filter</p>
             </div>
           )}

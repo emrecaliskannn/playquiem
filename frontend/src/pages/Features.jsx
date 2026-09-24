@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Bell, Trophy, Calendar, List, Sword, Globe, Star, GameController, Newspaper, Ranking } from '@phosphor-icons/react'
 import { PendingRequests, FriendButton } from '../components/Social'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -9,7 +9,7 @@ import { getDiaryEntries, getMyLogs, followUser, unfollowUser,
 import { Avatar, Stars, Spinner, EmptyState, GameCard } from '../components/ui'
 import toast from 'react-hot-toast'
 
-const TEAL = '#0ea5e9'
+const TEAL = 'var(--accent)'
 
 // ── helpers ───────────────────────────────────────────────────
 const teal  = s => <span style={{color: TEAL}}>{s}</span>
@@ -75,7 +75,7 @@ export function ActivityFeed() {
                 {item.rating > 0 && (
                   <div className="flex gap-px text-xs mt-0.5">
                     {[1,2,3,4,5].map(n =>
-                      <span key={n} style={{color: n<=item.rating ? '#f5c518':'#26263a'}}>★</span>)}
+                      <span key={n} style={{color: n<=item.rating ? '#f5c518':'var(--border-solid)'}}>★</span>)}
                   </div>
                 )}
                 {item.review && (
@@ -104,11 +104,35 @@ export function Notifications() {
 
   useEffect(() => {
     if (!user) { nav('/auth'); return }
+
+    // İlk yükleme
     supabase.from('notifications').select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50)
       .then(({ data }) => { setNotifs(data || []); setLoading(false) })
+
+    // Sayfayı açınca tümünü okundu işaretle
+    supabase.from('notifications')
+      .update({ read: true })
+      .eq('user_id', user.id)
+      .eq('read', false)
+      .then(() => {})
+
+    // Realtime — yeni bildirim gelince listeye ekle
+    const channel = supabase
+      .channel('notifs-page')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${user.id}`,
+      }, payload => {
+        setNotifs(prev => [{ ...payload.new, read: true }, ...prev])
+      })
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
   }, [user])
 
   const markRead = async () => {
@@ -116,7 +140,7 @@ export function Notifications() {
     setNotifs(n => n.map(x => ({...x, read:true})))
   }
 
-  const ICONS = { follow:'', log:'', review:'', achievement:'', challenge:'' }
+  const ICONS = { follow:'👤', log:'🎮', review:'⭐', achievement:'🏆', challenge:'🎯', friend_request:'🤝' }
 
   return (
     <div className="max-w-screen-md mx-auto px-6 pt-20 pb-16">
@@ -142,8 +166,8 @@ export function Notifications() {
             <div key={n.id}
               className="flex items-center gap-3 p-4 rounded-xl border transition-colors"
               style={{
-                background: n.read ? 'transparent' : 'rgba(14,165,233,0.05)',
-                borderColor: n.read ? '#26263a' : 'rgba(14,165,233,0.2)',
+                background: n.read ? 'transparent' : 'rgba(102,192,244,0.05)',
+                borderColor: n.read ? 'var(--border-solid)' : 'rgba(102,192,244,0.2)',
               }}>
               <span className="text-xl flex-shrink-0">{ICONS[n.type] || ''}</span>
               <div className="flex-1 min-w-0">
@@ -246,13 +270,13 @@ export function Achievements() {
               <div key={a.slug}
                 className="border rounded-2xl p-4 text-center transition-all"
                 style={{
-                  background: got ? 'rgba(14,165,233,0.07)' : '#0f1c2e',
-                  borderColor: got ? 'rgba(14,165,233,0.3)' : '#26263a',
+                  background: got ? 'rgba(102,192,244,0.07)' : 'var(--surface)',
+                  borderColor: got ? 'rgba(102,192,244,0.3)' : 'var(--border-solid)',
                   opacity: got ? 1 : 0.45,
                 }}>
                 <div className="text-4xl mb-2">{a.icon}</div>
                 <div className="font-semibold text-sm mb-1"
-                     style={{color: got ? TEAL : '#e8e8f5'}}>{a.name}</div>
+                     style={{color: got ? TEAL : 'var(--text)'}}>{a.name}</div>
                 <div className="text-muted text-xs">{a.desc}</div>
                 {got && (
                   <div className="text-[0.6rem] mt-2 font-bold tracking-wider"
@@ -322,9 +346,9 @@ export function YearInReview() {
               <button key={y} onClick={() => setYear(y)}
                 className="px-4 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
                 style={{
-                  background: year===y ? 'rgba(14,165,233,0.15)' : 'transparent',
-                  borderColor: year===y ? 'rgba(14,165,233,0.5)' : '#26263a',
-                  color: year===y ? TEAL : '#52527a',
+                  background: year===y ? 'rgba(102,192,244,0.15)' : 'transparent',
+                  borderColor: year===y ? 'rgba(102,192,244,0.5)' : 'var(--border-solid)',
+                  color: year===y ? TEAL : 'var(--text3)',
                 }}>{y}</button>
             ))}
         </div>
@@ -363,7 +387,7 @@ export function YearInReview() {
                   <div className="font-semibold">{topGame.title}</div>
                   <div className="flex gap-px mt-1">
                     {[1,2,3,4,5].map(n=>
-                      <span key={n} style={{color:n<=topGame.rating?'#f5c518':'#26263a',fontSize:12}}>★</span>)}
+                      <span key={n} style={{color:n<=topGame.rating?'#f5c518':'var(--border-solid)',fontSize:12}}>★</span>)}
                   </div>
                 </div>
               </div>
@@ -399,7 +423,7 @@ export function YearInReview() {
                     <div className="text-muted text-[0.6rem]">{count||''}</div>
                     <div className="w-full rounded-t-md transition-all"
                          style={{height:`${h}%`, minHeight: count>0?4:0,
-                                 background: count>0 ? TEAL : '#26263a', opacity:0.8}}/>
+                                 background: count>0 ? TEAL : 'var(--border-solid)', opacity:0.8}}/>
                     <div className="text-muted text-[0.62rem]">{m}</div>
                   </div>
                 )
@@ -431,16 +455,20 @@ export function YearInReview() {
 // ════════════════════════════════════════════════════════════
 export function Lists() {
   const { user } = useAuthStore()
-  const [lists,   setLists]   = useState([])
-  const [loading, setLoading] = useState(true)
-  const [creating,setCreating]= useState(false)
-  const [form,    setForm]    = useState({ title:'', description:'', is_public:true })
+  const [lists,    setLists]    = useState([])
+  const [loading,  setLoading]  = useState(true)
+  const [creating, setCreating] = useState(false)
+  const [filter,   setFilter]   = useState('all') // 'all' | 'mine'
+  const [form,     setForm]     = useState({ title:'', description:'', is_public:true })
   const nav = useNavigate()
+  const F = '"Helvetica Neue",Helvetica,Arial,sans-serif'
 
   useEffect(() => {
-    supabase.from('lists').select('*, list_items(count)')
-      .order('created_at', {ascending:false}).limit(50)
-      .then(({data}) => { setLists(data||[]); setLoading(false) })
+    supabase.from('lists')
+      .select('*, profiles(username), list_items(cover_url)')
+      .order('created_at', { ascending: false })
+      .limit(100)
+      .then(({ data }) => { setLists(data || []); setLoading(false) })
   }, [])
 
   const createList = async () => {
@@ -450,30 +478,61 @@ export function Lists() {
       user_id: user.id, ...form
     }).select().single()
     if (error) { toast.error(error.message); return }
-    setLists(l => [data, ...l])
+    setLists(l => [{ ...data, profiles: { username: '' }, list_items: [] }, ...l])
     setCreating(false)
     setForm({ title:'', description:'', is_public:true })
     toast.success('List created!')
     nav(`/list/${data.id}`)
   }
 
+  const deleteList = async (e, listId) => {
+    e.stopPropagation()
+    if (!confirm('Delete this list?')) return
+    await supabase.from('list_items').delete().eq('list_id', listId)
+    await supabase.from('lists').delete().eq('id', listId)
+    setLists(l => l.filter(x => x.id !== listId))
+    toast.success('List deleted')
+  }
+
+  const filtered = filter === 'mine' ? lists.filter(l => l.user_id === user?.id) : lists
+
   return (
-    <div className="max-w-screen-lg mx-auto px-6 pt-20 pb-16">
-      <div className="flex items-end justify-between flex-wrap gap-4 mb-8">
+    <div className="max-w-screen-lg mx-auto px-4 sm:px-6 pt-20 pb-16">
+      {/* Header */}
+      <div className="flex items-end justify-between flex-wrap gap-4 mb-6">
         <div>
-          <h1 className="font-display text-4xl tracking-[4px]" style={{color:TEAL}}>
+          <h1 className="font-display text-4xl tracking-[4px]" style={{ color: TEAL }}>
              Lists
           </h1>
-          <p className="text-muted text-sm mt-1">Curated game collections from the community</p>
+          <p className="text-muted text-sm mt-1">Curated game collections</p>
         </div>
         {user && (
           <button onClick={() => setCreating(true)}
-            className="font-bold px-5 py-2.5 rounded-xl text-sm transition-opacity hover:opacity-90"
-            style={{background:TEAL, color:'#09090f'}}>
+            className="font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity"
+            style={{ background: TEAL, color: 'var(--bg)', fontFamily: F }}>
             + New List
           </button>
         )}
       </div>
+
+      {/* Filter tabs */}
+      {user && (
+        <div className="flex gap-2 mb-6">
+          {[['all', 'All Lists'], ['mine', 'My Lists']].map(([key, label]) => (
+            <button key={key} onClick={() => setFilter(key)}
+              style={{
+                padding: '6px 16px', borderRadius: 20, fontFamily: F,
+                fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer',
+                background: filter === key ? 'rgba(102,192,244,0.15)' : 'transparent',
+                border: `1px solid ${filter === key ? 'rgba(102,192,244,0.4)' : 'rgba(102,192,244,0.12)'}`,
+                color: filter === key ? TEAL : 'rgba(102,192,244,0.4)',
+                transition: 'all 0.15s',
+              }}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Create modal */}
       {creating && (
@@ -481,29 +540,27 @@ export function Lists() {
           <div className="bg-surf2 border border-border rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-5">
               <h3 className="font-semibold text-lg">Create a List</h3>
-              <button onClick={() => setCreating(false)} className="text-muted hover:text-white">×</button>
+              <button onClick={() => setCreating(false)} className="text-muted hover:text-white text-xl">×</button>
             </div>
             <div className="space-y-4">
-              <input value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))}
+              <input value={form.title}
+                onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                 placeholder="List title…"
-                className="w-full bg-surf border border-border rounded-xl px-4 py-2.5
-                           text-sm outline-none focus:border-teal/50 transition-colors"
-                style={{color:TEAL}}/>
+                className="w-full bg-surf border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-teal/50 transition-colors"
+                style={{ color: TEAL }}/>
               <textarea value={form.description}
-                onChange={e=>setForm(f=>({...f,description:e.target.value}))}
+                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                 placeholder="Description (optional)…" rows={3}
-                className="w-full bg-surf border border-border rounded-xl px-4 py-2.5
-                           text-sm outline-none resize-none text-white/80
-                           focus:border-teal/50 transition-colors"/>
+                className="w-full bg-surf border border-border rounded-xl px-4 py-2.5 text-sm outline-none resize-none text-white/80 focus:border-teal/50 transition-colors"/>
               <label className="flex items-center gap-2.5 cursor-pointer">
                 <input type="checkbox" checked={form.is_public}
-                  onChange={e=>setForm(f=>({...f,is_public:e.target.checked}))}
+                  onChange={e => setForm(f => ({ ...f, is_public: e.target.checked }))}
                   className="w-4 h-4 cursor-pointer"/>
                 <span className="text-sm text-white/70">Public — visible to everyone</span>
               </label>
               <button onClick={createList}
                 className="w-full font-bold py-3 rounded-xl text-sm hover:opacity-90"
-                style={{background:TEAL, color:'#09090f'}}>
+                style={{ background: TEAL, color: 'var(--bg)', fontFamily: F }}>
                 Create List
               </button>
             </div>
@@ -512,29 +569,71 @@ export function Lists() {
       )}
 
       {loading ? <div className="flex justify-center py-12"><Spinner/></div>
-      : lists.length === 0 ? <EmptyState icon="" title="No lists yet" subtitle="Create the first curated list!"/>
-      : (
-        <div className="grid md:grid-cols-2 gap-4">
-          {lists.map(list => (
-            <div key={list.id}
-              onClick={() => nav(`/list/${list.id}`)}
-              className="bg-surf border border-border rounded-2xl p-5 cursor-pointer
-                         hover:border-teal/30 transition-colors group">
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold group-hover:text-teal transition-colors">
-                  {list.title}
-                </h3>
-                {!list.is_public && <span className="text-muted text-xs"> Private</span>}
+      : filtered.length === 0 ? (
+        <EmptyState icon="📋" title={filter === 'mine' ? "You have no lists yet" : "No lists yet"}
+          subtitle={filter === 'mine' ? "Create your first curated game list!" : "Be the first to create a list!"}/>
+      ) : (
+        <div className="grid sm:grid-cols-2 gap-4">
+          {filtered.map(list => {
+            const count = list.list_items?.length || 0
+            const cover = list.list_items?.find(i => i.cover_url)?.cover_url
+            const isOwner = user?.id === list.user_id
+            return (
+              <div key={list.id}
+                onClick={() => nav(`/list/${list.id}`)}
+                className="group bg-surf border border-border rounded-2xl overflow-hidden cursor-pointer hover:border-teal/30 transition-all"
+                style={{ transition: 'all 0.18s ease' }}
+                onMouseEnter={e => e.currentTarget.style.transform='translateY(-2px)'}
+                onMouseLeave={e => e.currentTarget.style.transform='none'}>
+                {/* Cover strip */}
+                <div style={{
+                  height: 80, background: cover
+                    ? `linear-gradient(to right, rgba(9,9,15,0.8), rgba(9,9,15,0.3)), url(${cover}) center/cover`
+                    : 'linear-gradient(135deg, #111120, #1a1a2e)',
+                  position: 'relative',
+                }}>
+                  {!list.is_public && (
+                    <span style={{
+                      position: 'absolute', top: 10, right: 10,
+                      background: 'rgba(0,0,0,0.6)', color: 'rgba(255,255,255,0.5)',
+                      fontSize: '0.6rem', fontWeight: 700, padding: '2px 8px',
+                      borderRadius: 20, fontFamily: F,
+                    }}>🔒 PRIVATE</span>
+                  )}
+                </div>
+
+                <div className="p-4">
+                  <div className="flex items-start justify-between gap-2 mb-1">
+                    <h3 className="font-semibold group-hover:text-teal transition-colors truncate">{list.title}</h3>
+                    {isOwner && (
+                      <button onClick={e => deleteList(e, list.id)}
+                        className="text-muted hover:text-red text-lg flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Delete list">×</button>
+                    )}
+                  </div>
+                  {list.description && (
+                    <p className="text-muted text-xs mb-3 line-clamp-2">{list.description}</p>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <div className="text-muted text-xs" style={{ fontFamily: F }}>
+                      <span style={{ color: 'rgba(102,192,244,0.5)' }}>{count} game{count !== 1 ? 's' : ''}</span>
+                      {list.profiles?.username && <span> · @{list.profiles.username}</span>}
+                    </div>
+                    {isOwner && (
+                      <button onClick={e => { e.stopPropagation(); nav(`/list/${list.id}`) }}
+                        style={{
+                          background: 'rgba(102,192,244,0.08)', border: '1px solid rgba(102,192,244,0.2)',
+                          color: TEAL, borderRadius: 8, padding: '4px 10px',
+                          fontSize: '0.68rem', fontWeight: 700, cursor: 'pointer', fontFamily: F,
+                        }}>
+                        + Add Games
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-              {list.description && (
-                <p className="text-muted text-sm mb-3 line-clamp-2">{list.description}</p>
-              )}
-              <div className="text-muted text-xs">
-                {list.list_items?.[0]?.count || 0} games ·{' '}
-                {new Date(list.created_at).toLocaleDateString('en',{month:'short',year:'numeric'})}
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
@@ -545,46 +644,77 @@ export function Lists() {
 export function ListDetail() {
   const { id } = useParams()
   const { user } = useAuthStore()
-  const [list,    setList]    = useState(null)
-  const [items,   setItems]   = useState([])
-  const [loading, setLoading] = useState(true)
-  const [adding,  setAdding]  = useState(false)
-  const [searchQ, setSearchQ] = useState('')
-  const [results, setResults] = useState([])
+  const [list,      setList]      = useState(null)
+  const [items,     setItems]     = useState([])
+  const [loading,   setLoading]   = useState(true)
+  const [adding,    setAdding]    = useState(false)
+  const [searchQ,   setSearchQ]   = useState('')
+  const [results,   setResults]   = useState([])
+  const [searching, setSearching] = useState(false)
+  const [note,      setNote]      = useState('')
+  const [editTitle, setEditTitle] = useState(false)
+  const [newTitle,  setNewTitle]  = useState('')
   const nav = useNavigate()
+  const F = '"Helvetica Neue",Helvetica,Arial,sans-serif'
+  const searchTimer = useRef(null)
+  const PHOLDER = 'https://placehold.co/264x352/111118/26263a?text='
 
   useEffect(() => {
     Promise.all([
       supabase.from('lists').select('*, profiles(username)').eq('id', id).single(),
-      supabase.from('list_items').select('*').eq('list_id', id).order('position')
-    ]).then(([{data:l},{data:it}]) => {
-      setList(l); setItems(it||[]); setLoading(false)
+      supabase.from('list_items').select('*').eq('list_id', id).order('position'),
+    ]).then(([{ data: l }, { data: it }]) => {
+      setList(l); setItems(it || []); setLoading(false)
+      setNewTitle(l?.title || '')
     })
   }, [id])
 
-  const searchGames = async q => {
+  // Debounced search
+  const handleSearch = q => {
+    setSearchQ(q)
+    clearTimeout(searchTimer.current)
     if (!q.trim()) { setResults([]); return }
-    const r = await fetch(`${API}/api/games?q=${encodeURIComponent(q)}&limit=8`)
-    setResults(await r.json())
+    setSearching(true)
+    searchTimer.current = setTimeout(async () => {
+      try {
+        const r = await fetch(`${API}/api/games?q=${encodeURIComponent(q)}&limit=8`)
+        setResults(await r.json())
+      } catch { setResults([]) }
+      finally { setSearching(false) }
+    }, 350)
   }
 
   const addGame = async g => {
-    const { error } = await supabase.from('list_items').insert({
+    // Duplicate kontrolü
+    if (items.some(i => i.igdb_id === g.id)) {
+      toast.error(`${g.title} is already in this list`); return
+    }
+    const { data, error } = await supabase.from('list_items').insert({
       list_id: parseInt(id), igdb_id: g.id, title: g.title,
-      cover_url: g.cover||'', genres: (g.genres||[]).join(', '),
-      position: items.length,
-    })
+      cover_url: g.cover || '', genres: (g.genres || []).join(', '),
+      position: items.length, note: note || null,
+    }).select().single()
     if (error) { toast.error(error.message); return }
-    setItems(i => [...i, {igdb_id:g.id,title:g.title,cover_url:g.cover||'',position:i.length}])
-    toast.success(`Added ${g.title}`)
+    setItems(i => [...i, data])
+    setNote('')
+    toast.success(`Added ${g.title}!`)
   }
 
-  const removeItem = async itemId => {
+  const removeItem = async (e, itemId, title) => {
+    e.stopPropagation()
+    if (!confirm(`Remove "${title}" from list?`)) return
     await supabase.from('list_items').delete().eq('id', itemId)
     setItems(i => i.filter(x => x.id !== itemId))
+    toast.success('Removed')
   }
 
-  const PHOLDER = 'https://placehold.co/264x352/111118/26263a?text='
+  const saveTitle = async () => {
+    if (!newTitle.trim()) return
+    await supabase.from('lists').update({ title: newTitle }).eq('id', id)
+    setList(l => ({ ...l, title: newTitle }))
+    setEditTitle(false)
+    toast.success('Title updated')
+  }
 
   if (loading) return <div className="flex justify-center pt-32"><Spinner/></div>
   if (!list) return <div className="text-center pt-32 text-muted">List not found</div>
@@ -592,81 +722,147 @@ export function ListDetail() {
   const isOwner = user?.id === list.user_id
 
   return (
-    <div className="max-w-screen-lg mx-auto px-6 pt-20 pb-16">
+    <div className="max-w-screen-lg mx-auto px-4 sm:px-6 pt-20 pb-16">
       <button onClick={() => nav('/lists')}
         className="text-muted text-sm hover:text-teal transition-colors mb-6 block">
         ← Back to Lists
       </button>
 
+      {/* List header */}
       <div className="mb-8">
-        <h1 className="font-display text-4xl tracking-[4px] text-white mb-2">{list.title}</h1>
-        {list.description && <p className="text-muted">{list.description}</p>}
-        <p className="text-muted text-sm mt-2">
-          by <span style={{color:TEAL}} className="cursor-pointer hover:underline"
-                   onClick={()=>nav(`/profile/${list.user_id}`)}>
+        {editTitle ? (
+          <div className="flex gap-2 items-center mb-2">
+            <input value={newTitle} onChange={e => setNewTitle(e.target.value)}
+              className="bg-surf border border-teal/30 rounded-xl px-4 py-2 text-xl font-bold outline-none flex-1"
+              style={{ color: TEAL, fontFamily: F }}/>
+            <button onClick={saveTitle}
+              className="px-4 py-2 rounded-xl text-sm font-bold hover:opacity-90"
+              style={{ background: TEAL, color: 'var(--bg)', fontFamily: F }}>Save</button>
+            <button onClick={() => setEditTitle(false)}
+              className="text-muted hover:text-white px-3">Cancel</button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="font-display text-3xl sm:text-4xl text-white">{list.title}</h1>
+            {isOwner && (
+              <button onClick={() => setEditTitle(true)}
+                className="text-muted hover:text-teal transition-colors text-sm opacity-60 hover:opacity-100">✎</button>
+            )}
+          </div>
+        )}
+        {list.description && <p className="text-muted mb-2">{list.description}</p>}
+        <p className="text-muted text-sm">
+          by <span style={{ color: TEAL }} className="cursor-pointer hover:underline"
+                   onClick={() => nav(`/profile/${list.user_id}`)}>
             @{list.profiles?.username}
-          </span>{' · '}{items.length} games
+          </span>{' · '}{items.length} game{items.length !== 1 ? 's' : ''}
+          {!list.is_public && <span className="ml-2 text-xs opacity-50">🔒 Private</span>}
         </p>
       </div>
 
+      {/* Add games panel (owner only) */}
       {isOwner && (
         <div className="mb-6">
-          <button onClick={() => setAdding(a=>!a)}
-            className="font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90"
-            style={{background:TEAL, color:'#09090f'}}>
-            {adding ? 'Done' : '+ Add Games'}
+          <button onClick={() => setAdding(a => !a)}
+            className="font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity"
+            style={{ background: adding ? 'rgba(102,192,244,0.15)' : TEAL, color: adding ? TEAL : 'var(--bg)', fontFamily: F, border: adding ? '1px solid rgba(102,192,244,0.3)' : 'none' }}>
+            {adding ? '✓ Done' : '+ Add Games'}
           </button>
+
           {adding && (
             <div className="mt-3 bg-surf2 border border-border rounded-2xl p-4">
-              <input value={searchQ}
-                onChange={e => { setSearchQ(e.target.value); searchGames(e.target.value) }}
-                placeholder="Search games to add…"
-                className="w-full bg-surf border border-border rounded-xl px-4 py-2.5
-                           text-sm outline-none mb-3"
-                style={{color:TEAL}}/>
-              {results.map(g => (
-                <div key={g.id} className="flex items-center gap-3 py-2 border-b border-border last:border-0">
-                  <img src={g.cover||PHOLDER} className="w-8 h-10 rounded object-cover"
-                       onError={e=>e.target.src=PHOLDER}/>
-                  <span className="flex-1 text-sm">{g.title}</span>
-                  <button onClick={() => addGame(g)}
-                    className="text-xs px-3 py-1 rounded-lg border border-teal/30
-                               text-teal hover:bg-teal/10 transition-colors">Add</button>
+              {/* Search */}
+              <div className="relative mb-3">
+                <input value={searchQ}
+                  onChange={e => handleSearch(e.target.value)}
+                  placeholder="Search any game to add…"
+                  className="w-full bg-surf border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-teal/40 transition-colors"
+                  style={{ color: TEAL, fontFamily: F }}/>
+                {searching && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted text-xs">...</span>
+                )}
+                {searchQ && (
+                  <button onClick={() => { setSearchQ(''); setResults([]) }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-white text-lg">×</button>
+                )}
+              </div>
+
+              {/* Optional note */}
+              <input value={note} onChange={e => setNote(e.target.value)}
+                placeholder="Add a note (optional)…"
+                className="w-full bg-surf border border-border rounded-xl px-4 py-2 text-xs outline-none mb-3 text-white/60 focus:border-teal/30 transition-colors"/>
+
+              {/* Results */}
+              {results.length > 0 && (
+                <div className="space-y-1 max-h-72 overflow-y-auto">
+                  {results.map(g => {
+                    const alreadyAdded = items.some(i => i.igdb_id === g.id)
+                    return (
+                      <div key={g.id}
+                        className="flex items-center gap-3 py-2 px-2 rounded-xl hover:bg-white/5 transition-colors">
+                        <img src={g.cover || PHOLDER} className="w-8 h-11 rounded object-cover flex-shrink-0"
+                             onError={e => e.target.src = PHOLDER}/>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-white truncate">{g.title}</div>
+                          {g.year && <div className="text-xs text-muted">{g.year}</div>}
+                        </div>
+                        {alreadyAdded ? (
+                          <span className="text-xs px-3 py-1 rounded-lg"
+                            style={{ color: '#2dc653', background: 'rgba(45,198,83,0.1)', fontFamily: F }}>
+                            ✓ Added
+                          </span>
+                        ) : (
+                          <button onClick={() => addGame(g)}
+                            className="text-xs px-3 py-1.5 rounded-lg border border-teal/30 text-teal hover:bg-teal/10 transition-colors font-bold"
+                            style={{ fontFamily: F }}>
+                            + Add
+                          </button>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
-              ))}
+              )}
+
+              {searchQ && !searching && results.length === 0 && (
+                <p className="text-muted text-sm text-center py-4">No games found for "{searchQ}"</p>
+              )}
             </div>
           )}
         </div>
       )}
 
+      {/* Game list */}
       {items.length === 0 ? (
-        <EmptyState icon="" title="This list is empty" subtitle={isOwner ? "Add some games!" : "Nothing here yet"}/>
+        <EmptyState icon="🎮" title="This list is empty"
+          subtitle={isOwner ? 'Click "+ Add Games" to start building your list!' : 'Nothing here yet'}/>
       ) : (
         <div className="space-y-2">
           {items.map((item, i) => (
             <div key={item.id || i}
-              className="flex items-center gap-4 bg-surf border border-border
-                         rounded-xl p-3 hover:border-teal/20 transition-colors group">
-              <span className="font-display text-xl w-8 text-center flex-shrink-0"
-                    style={{color:'rgba(14,165,233,0.4)'}}>
-                {i+1}
+              className="flex items-center gap-4 bg-surf border border-border rounded-xl p-3 hover:border-teal/20 transition-colors group cursor-pointer"
+              onClick={() => item.igdb_id && nav(`/game/${item.igdb_id}`)}>
+              {/* Rank */}
+              <span className="font-display text-lg w-7 text-center flex-shrink-0"
+                    style={{ color: i < 3 ? TEAL : 'rgba(102,192,244,0.25)' }}>
+                {i + 1}
               </span>
-              <img src={item.cover_url||PHOLDER} alt={item.title}
-                   className="w-10 h-13 object-cover rounded-lg flex-shrink-0 cursor-pointer"
-                   onClick={() => item.igdb_id && nav(`/game/${item.igdb_id}`)}
-                   onError={e=>e.target.src=PHOLDER}/>
+              {/* Cover */}
+              <img src={item.cover_url || PHOLDER} alt={item.title}
+                   className="w-10 h-14 object-cover rounded-lg flex-shrink-0"
+                   onError={e => e.target.src = PHOLDER}/>
+              {/* Info */}
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm cursor-pointer hover:text-teal transition-colors"
-                     onClick={() => item.igdb_id && nav(`/game/${item.igdb_id}`)}>
-                  {item.title}
-                </div>
-                {item.note && <div className="text-muted text-xs mt-0.5">{item.note}</div>}
+                <div className="font-semibold text-sm hover:text-teal transition-colors truncate">{item.title}</div>
+                {item.note && <div className="text-muted text-xs mt-0.5 truncate italic">"{item.note}"</div>}
+                {item.genres && <div className="text-muted text-xs mt-0.5 truncate">{item.genres}</div>}
               </div>
+              {/* Remove */}
               {isOwner && (
-                <button onClick={() => removeItem(item.id)}
-                  className="opacity-0 group-hover:opacity-100 text-muted hover:text-red
-                             transition-all w-7 h-7 flex items-center justify-center
-                             rounded-lg hover:bg-red/10">×</button>
+                <button onClick={e => removeItem(e, item.id, item.title)}
+                  className="text-muted hover:text-red transition-colors text-xl flex-shrink-0 opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red/10">
+                  ×
+                </button>
               )}
             </div>
           ))}
@@ -675,6 +871,7 @@ export function ListDetail() {
     </div>
   )
 }
+
 
 // ════════════════════════════════════════════════════════════
 //   CHALLENGES
@@ -739,7 +936,7 @@ export function Challenges() {
         {user && (
           <button onClick={() => setCreating(true)}
             className="font-bold px-5 py-2.5 rounded-xl text-sm hover:opacity-90"
-            style={{background:TEAL, color:'#09090f'}}>
+            style={{background:TEAL, color:'var(--bg)'}}>
             + New Challenge
           </button>
         )}
@@ -799,7 +996,7 @@ export function Challenges() {
                            text-sm outline-none resize-none text-white/80"/>
               <button onClick={createChallenge}
                 className="w-full font-bold py-3 rounded-xl text-sm hover:opacity-90"
-                style={{background:TEAL, color:'#09090f'}}>
+                style={{background:TEAL, color:'var(--bg)'}}>
                 Create Challenge 
               </button>
             </div>
@@ -820,8 +1017,8 @@ export function Challenges() {
               <div key={ch.id}
                 className="border rounded-2xl p-5 transition-colors"
                 style={{
-                  background: done ? 'rgba(14,165,233,0.07)' : '#0f1c2e',
-                  borderColor: done ? 'rgba(14,165,233,0.35)' : '#26263a',
+                  background: done ? 'rgba(102,192,244,0.07)' : 'var(--surface)',
+                  borderColor: done ? 'rgba(102,192,244,0.35)' : 'var(--border-solid)',
                 }}>
                 <div className="flex items-start justify-between mb-1">
                   <h3 className="font-semibold">{ch.title}</h3>
@@ -936,7 +1133,7 @@ export function PublicProfile() {
             className="px-6 py-2.5 rounded-xl font-bold text-sm transition-all"
             style={{
               background: following ? 'transparent' : TEAL,
-              color: following ? TEAL : '#09090f',
+              color: following ? TEAL : 'var(--bg)',
               border: `1px solid ${TEAL}`,
             }}>
             {following ? 'Following ✓' : '+ Follow'}
@@ -967,7 +1164,7 @@ export function PublicProfile() {
               </div>
               <div className="flex gap-px mt-1 justify-center">
                 {[1,2,3,4,5].map(n=>
-                  <span key={n} style={{color:n<=row.rating?'#f5c518':'#26263a',fontSize:9}}>★</span>)}
+                  <span key={n} style={{color:n<=row.rating?'#f5c518':'var(--border-solid)',fontSize:9}}>★</span>)}
               </div>
             </div>
           ))}
@@ -1059,17 +1256,17 @@ export function GameNews() {
         <button onClick={() => setFilter('')}
           className="px-4 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
           style={{
-            background:   !filter ? 'rgba(14,165,233,0.15)' : 'transparent',
-            borderColor:  !filter ? 'rgba(14,165,233,0.5)'  : '#26263a',
-            color:        !filter ? TEAL : '#52527a',
+            background:   !filter ? 'rgba(102,192,244,0.15)' : 'transparent',
+            borderColor:  !filter ? 'rgba(102,192,244,0.5)'  : 'var(--border-solid)',
+            color:        !filter ? TEAL : 'var(--text3)',
           }}>All</button>
         {sources.map(s => (
           <button key={s} onClick={() => setFilter(s)}
             className="px-4 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
             style={{
-              background:   filter===s ? 'rgba(14,165,233,0.15)' : 'transparent',
-              borderColor:  filter===s ? 'rgba(14,165,233,0.5)'  : '#26263a',
-              color:        filter===s ? TEAL : '#52527a',
+              background:   filter===s ? 'rgba(102,192,244,0.15)' : 'transparent',
+              borderColor:  filter===s ? 'rgba(102,192,244,0.5)'  : 'var(--border-solid)',
+              color:        filter===s ? TEAL : 'var(--text3)',
             }}>{s}</button>
         ))}
       </div>
@@ -1092,8 +1289,8 @@ export function GameNews() {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-[0.62rem] font-bold tracking-wider px-2 py-0.5
                                    rounded border"
-                        style={{color:TEAL, borderColor:'rgba(14,165,233,0.3)',
-                                background:'rgba(14,165,233,0.08)'}}>
+                        style={{color:TEAL, borderColor:'rgba(102,192,244,0.3)',
+                                background:'rgba(102,192,244,0.08)'}}>
                     {a.source}
                   </span>
                   <span className="text-muted text-[0.62rem]">{a.pubDate?.slice(0,16)}</span>

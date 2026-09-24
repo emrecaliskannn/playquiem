@@ -2,43 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Playquiem — Oynadığın her oyunu logla, puanla ve arkadaşlarınla paylaş. Oyun günlüğün için Letterboxd."/>
-  <meta name="keywords" content="oyun günlüğü, game diary, game tracker, oyun loglama, game log, letterboxd for games"/>
-  <meta property="og:title" content="Playquiem — A Diary for the Games You Love"/>
-  <meta property="og:description" content="Oynadığın her oyunu logla, puanla ve arkadaşlarınla paylaş."/>
-  <meta property="og:url" content="https://playquiem.com"/>
-  <meta property="og:type" content="website"/>
-  <meta property="og:image" content="https://playquiem.com/logo.png"/>
-  <meta property="og:image:width" content="512"/>
-  <meta property="og:image:height" content="512"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="Playquiem — A Diary for the Games You Love"/>
-  <meta name="twitter:description" content="Oynadığın her oyunu logla, puanla ve arkadaşlarınla paylaş."/>
-  <meta name="twitter:image" content="https://playquiem.com/logo.png"/>
-  <title>Playquiem — Game Diary & Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-  <!-- SEO -->
-  <meta name="description" content="Playquiem is a game diary and tracker. Log games you've played, rate them, write reviews and discover what to play next." />
-  <meta name="keywords" content="game diary, game tracker, video game log, game reviews, gaming journal, what to play, game backlog, letterboxd for games" />
+  <!-- Primary SEO -->
+  <title>Playquiem — Game Diary & Tracker</title>
+  <meta name="description" content="Log every game you play, rate them, write reviews and discover what to play next. The ultimate game diary for gamers." />
+  <meta name="keywords" content="game diary, game tracker, video game log, game reviews, gaming journal, game backlog, letterboxd for games, oyun günlüğü" />
   <meta name="author" content="Playquiem" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://playquiem.com" />
 
-  <!-- Open Graph (Facebook, Discord) -->
+  <!-- Open Graph (Facebook, Discord, WhatsApp) -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://playquiem.com" />
   <meta property="og:title" content="Playquiem — Game Diary & Tracker" />
-  <meta property="og:description" content="Log games you've played, rate them, write reviews and discover what to play next." />
-  <meta property="og:image" content="https://playquiem.com/logo.png" />
+  <meta property="og:description" content="Log every game you play, rate them, write reviews and discover what to play next." />
+  <meta property="og:image" content="https://playquiem.com/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:site_name" content="Playquiem" />
+  <meta property="og:locale" content="en_US" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="https://playquiem.com" />
   <meta name="twitter:title" content="Playquiem — Game Diary & Tracker" />
-  <meta name="twitter:description" content="Log games you've played, rate them, write reviews and discover what to play next." />
-  <meta name="twitter:image" content="https://playquiem.com/logo.png" />
+  <meta name="twitter:description" content="Log every game you play, rate them, write reviews and discover what to play next." />
+  <meta name="twitter:image" content="https://playquiem.com/og-image.png" />
 
   <!-- PWA -->
   <link rel="icon" type="image/png" href="/logo.png" />
@@ -57,23 +46,58 @@
     "@type": "WebApplication",
     "name": "Playquiem",
     "url": "https://playquiem.com",
-    "description": "A game diary and tracker. Log games you have played, rate them, write reviews and discover what to play next.",
+    "description": "Log every game you play, rate them, write reviews and discover what to play next.",
     "applicationCategory": "GameApplication",
-    "operatingSystem": "Web",
+    "operatingSystem": "Web, iOS, Android",
+    "inLanguage": ["en", "tr"],
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
-    }
+    },
+    "featureList": [
+      "Game diary and logging",
+      "Game ratings and reviews",
+      "Friends and social features",
+      "Game discovery",
+      "Personal library tracking"
+    ]
   }
   </script>
-  <!-- Google tag (gtag.js) -->
+
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1RWSC6TN0Z"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-1RWSC6TN0Z');
+  </script>
+  <!-- AdSense: Replace YOUR_PUB_ID and uncomment when approved -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6074354505115219" crossorigin="anonymous"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Playquiem",
+    "url": "https://playquiem.com",
+    "description": "Your game diary. Log, rate and review every game you play.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://playquiem.com/games?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Playquiem",
+    "url": "https://playquiem.com",
+    "logo": "https://playquiem.com/logo.png",
+    "sameAs": []
+  }
   </script>
 </head>
 <body>

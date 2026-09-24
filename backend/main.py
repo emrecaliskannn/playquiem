@@ -19,8 +19,8 @@ app.add_middleware(
 )
 
 # ── IGDB credentials ─────────────────────────────────────────
-IGDB_CLIENT_ID     = os.getenv("IGDB_CLIENT_ID",     "8bholkiyi0854wqobf3t3e9t9gsaeh")
-IGDB_CLIENT_SECRET = os.getenv("IGDB_CLIENT_SECRET",  "o02u8ztqki1w66w200s1a31jk44rgo")
+IGDB_CLIENT_ID     = os.getenv("IGDB_CLIENT_ID", "")
+IGDB_CLIENT_SECRET = os.getenv("IGDB_CLIENT_SECRET", "")
 
 _token_cache = {"token": None, "expires": datetime.min}
 
@@ -139,17 +139,25 @@ def get_games(
         return [fmt(g) for g in raw]
 
     # No platform filter
-    if q:
-        raw = igdb("games", f'search "{q}"; {BASE_FIELDS} limit {limit};')
-        return [fmt(g) for g in raw]
-
-    where = "cover != null & genres != null & total_rating_count > 10"
-
+    genre_id = None
     if genre:
         graw = igdb("genres", f'fields id; where name = "{genre}"; limit 1;')
         if not graw:
             return []
-        where += f" & genres = [{graw[0]['id']}]"
+        genre_id = graw[0]['id']
+
+    if q:
+        # Search + optional genre filter
+        if genre_id:
+            raw = igdb("games", f'search "{q}"; {BASE_FIELDS} where cover != null & genres = [{genre_id}]; limit {limit};')
+        else:
+            raw = igdb("games", f'search "{q}"; {BASE_FIELDS} limit {limit};')
+        return [fmt(g) for g in raw]
+
+    where = "cover != null & genres != null & total_rating_count > 10"
+
+    if genre_id:
+        where += f" & genres = [{genre_id}]"
 
     body = f"{BASE_FIELDS} where {where}; sort {sf}; limit {limit}; offset {offset};"
     return [fmt(g) for g in igdb("games", body)]
@@ -234,90 +242,128 @@ def get_game(game_id: int):
 # ── 1-hour cache for trending ────────────────────────────────
 _trending_cache: dict = {"data": [], "ts": datetime.min}
 
-def _fetch_steam_trending() -> list[int]:
+def _fetch_steam_trending() -> list[dict]:
     """
-    Fetch top app IDs from SteamSpy (free, no key needed).
-    Returns list of Steam appids sorted by 2-week player count.
-    Falls back to empty list on any error.
+    SteamSpy top100in2weeks — gerçek oyuncu verisi.
+    Returns list of {appid, name, ccu_average, owners} sorted by ccu_average.
     """
     try:
-        # SteamSpy top100in2weeks — free endpoint, no auth required
         r = requests.get(
             "https://steamspy.com/api.php?request=top100in2weeks",
-            timeout=6, headers={"User-Agent": "QuestLog/1.0"}
+            timeout=8, headers={"User-Agent": "Playquiem/1.0"}
         )
         if not r.ok:
             return []
         data = r.json()
-        # Sort by ccu_average (avg concurrent players over 2 weeks)
         sorted_apps = sorted(
             data.items(),
             key=lambda x: x[1].get("ccu_average", 0),
             reverse=True
         )
-        return [int(appid) for appid, _ in sorted_apps[:30]]
+        return [
+            {
+                "appid": int(appid),
+                "name": info.get("name", ""),
+                "ccu": info.get("ccu_average", 0),
+                "players_2weeks": info.get("players_forever", 0),
+            }
+            for appid, info in sorted_apps[:40]
+        ]
     except Exception:
         return []
 
-def _steam_appids_to_igdb(appids: list[int]) -> list[dict]:
+def _fetch_steam_monthly_players(appid: int) -> int:
+    """SteamSpy'dan tekil oyun için aylık oyuncu sayısı."""
+    try:
+        r = requests.get(
+            f"https://steamspy.com/api.php?request=appdetails&appid={appid}",
+            timeout=5, headers={"User-Agent": "Playquiem/1.0"}
+        )
+        if r.ok:
+            d = r.json()
+            return d.get("ccu_average", 0) or d.get("players_forever", 0)
+    except Exception:
+        pass
+    return 0
+
+def _steam_appids_to_igdb(steam_games: list[dict]) -> list[dict]:
     """
-    Cross-reference Steam appids to IGDB games via external_games table.
-    category=1 means Steam.
+    Steam appid'lerini IGDB ID'leriyle eşleştir.
+    Returns list of (igdb_game, steam_info) tuples.
     """
-    if not appids:
+    if not steam_games:
         return []
+    appids = [g["appid"] for g in steam_games]
     uid_str = ",".join(str(a) for a in appids)
     ext = igdb("external_games",
-        f"fields game,uid; where category=1 & uid=({uid_str}); limit 30;")
-    igdb_ids = list({str(e["game"]) for e in ext if e.get("game")})
-    if not igdb_ids:
+        f"fields game,uid; where category=1 & uid=({uid_str}); limit 40;")
+    
+    # uid → steam_info map
+    steam_map = {str(g["appid"]): g for g in steam_games}
+    # igdb_id → steam_info
+    igdb_to_steam = {}
+    for e in ext:
+        uid = str(e.get("uid", ""))
+        gid = e.get("game")
+        if uid in steam_map and gid:
+            igdb_to_steam[gid] = steam_map[uid]
+
+    if not igdb_to_steam:
         return []
-    id_str = ",".join(igdb_ids[:20])
+
+    id_str = ",".join(str(i) for i in list(igdb_to_steam.keys())[:30])
     raw = igdb("games",
-        BASE_FIELDS + f" where id=({id_str}) & cover!=null; limit 20;")
-    return raw
+        BASE_FIELDS + f" where id=({id_str}) & cover!=null; limit 30;")
+    
+    result = []
+    for g in raw:
+        steam_info = igdb_to_steam.get(g["id"], {})
+        result.append({"igdb": g, "steam": steam_info})
+    return result
 
 @app.get("/api/trending")
 def get_trending(limit: int = 20):
     """
-    'Popular Right Now' — hybrid IGDB + SteamSpy ranking.
+    'Popular Right Now' — Son 1 ayda dünyada gerçekten oynanan oyunlar.
 
-    Sources:
-      A) SteamSpy top100in2weeks → avg concurrent players → cross-ref to IGDB
-         These games get a 'steam_trending' badge and top weighting.
+    Kaynaklar:
+      A) SteamSpy top100in2weeks → gerçek eşzamanlı oyuncu ortalaması (ccu_average)
+         Bu değer son 2 haftanın saatlik ortalaması — en güvenilir anlık veri.
 
-      B) IGDB follows (users tracking game) — strongest IGDB popularity signal
+      B) IGDB follows — oyuncuların takip ettiği oyunlar (engagement sinyali)
 
-      C) IGDB total_rating_count — volume of ratings ≈ playerbase size,
-         filtered to total_rating > 70 so quality stays high
+      C) IGDB total_rating_count — son 30 günde yüksek rating sayısı alanlar
 
-      D) IGDB hypes, last 90 days — catches newly released + upcoming titles
-
-    Composite score (lower rank = more popular):
-      steam_rank  × 0.40  (real player data — most reliable)
+    Composite score:
+      ccu_rank    × 0.50  (gerçek oyuncu verisi — en güvenilir)
       follow_rank × 0.30  (IGDB engagement)
-      rating_rank × 0.20  (longevity / playerbase size)
-      hype_rank   × 0.10  (freshness signal)
+      rating_rank × 0.20  (oyuncu kitlesi büyüklüğü)
 
-    Cache: 1 hour (IGDB updates slowly; SteamSpy updates every 10 min but
-           we don't need to hammer it)
+    Cache: 1 saat
     """
     global _trending_cache
     age = (datetime.utcnow() - _trending_cache["ts"]).total_seconds()
     if _trending_cache["data"] and age < 3600:
         return _trending_cache["data"][:limit]
 
-    N = limit + 15  # overfetch to survive dedup losses
+    N = limit + 20
 
-    # ── Source A: SteamSpy live players → IGDB lookup ────────
-    steam_appids = _fetch_steam_trending()
-    steam_raw    = _steam_appids_to_igdb(steam_appids)
-    # Map igdb_id → steam rank (position in sorted list)
-    steam_rank_map: dict[int, int] = {}
-    for i, g in enumerate(steam_raw):
-        steam_rank_map[g["id"]] = i
+    # ── Kaynak A: SteamSpy gerçek oyuncu verisi ──────────────
+    steam_games = _fetch_steam_trending()
+    steam_igdb  = _steam_appids_to_igdb(steam_games)
 
-    # ── Source B: IGDB follows ────────────────────────────────
+    # igdb_id → steam_info map
+    steam_info_map: dict[int, dict] = {}
+    for item in steam_igdb:
+        gid = item["igdb"]["id"]
+        steam_info_map[gid] = item["steam"]
+
+    # CCU sıralama (yüksek CCU = düşük rank = daha popüler)
+    ccu_rank_map: dict[int, int] = {}
+    for i, item in enumerate(sorted(steam_igdb, key=lambda x: x["steam"].get("ccu", 0), reverse=True)):
+        ccu_rank_map[item["igdb"]["id"]] = i
+
+    # ── Kaynak B: IGDB follows ────────────────────────────────
     by_follows = igdb("games",
         BASE_FIELDS +
         " where follows!=null & follows>50"
@@ -325,21 +371,13 @@ def get_trending(limit: int = 20):
         " sort follows desc;"
         f" limit {N};")
 
-    # ── Source C: IGDB rating count (volume) ─────────────────
+    # ── Kaynak C: Son 30 günde rating kazanan oyunlar ─────────
+    d30 = int((datetime.utcnow() - timedelta(days=30)).timestamp())
     by_ratings = igdb("games",
         BASE_FIELDS +
-        " where total_rating_count>100 & total_rating>70"
+        " where total_rating_count>200 & total_rating>72"
         " & cover!=null & genres!=null;"
         " sort total_rating_count desc;"
-        f" limit {N};")
-
-    # ── Source D: IGDB hypes, last 30 days (monthly focus) ──
-    d30 = int((datetime.utcnow() - timedelta(days=30)).timestamp())
-    by_hypes = igdb("games",
-        BASE_FIELDS +
-        f" where hypes>10 & cover!=null & genres!=null"
-        f" & first_release_date>{d30};"
-        " sort hypes desc;"
         f" limit {N};")
 
     # ── Merge & deduplicate ───────────────────────────────────
@@ -349,115 +387,114 @@ def get_trending(limit: int = 20):
     def upsert(gid, raw, field, rank):
         if gid not in seen:
             seen[gid] = {"raw": raw,
-                         "steam_rank":  INF,
+                         "ccu_rank":    INF,
                          "follow_rank": INF,
-                         "rating_rank": INF,
-                         "hype_rank":   INF}
+                         "rating_rank": INF}
         seen[gid][field] = min(seen[gid][field], rank)
 
-    # Steam games start with their steam rank
-    for g in steam_raw:
-        upsert(g["id"], g, "steam_rank", steam_rank_map[g["id"]])
+    for item in steam_igdb:
+        g = item["igdb"]
+        upsert(g["id"], g, "ccu_rank", ccu_rank_map.get(g["id"], INF))
     for i, g in enumerate(by_follows):
         upsert(g["id"], g, "follow_rank", i)
     for i, g in enumerate(by_ratings):
         upsert(g["id"], g, "rating_rank", i)
-    for i, g in enumerate(by_hypes):
-        upsert(g["id"], g, "hype_rank", i)
 
     # ── Composite score ───────────────────────────────────────
     def composite(e: dict) -> float:
         return (
-            e["steam_rank"]  * 0.40 +
+            e["ccu_rank"]    * 0.50 +
             e["follow_rank"] * 0.30 +
-            e["rating_rank"] * 0.20 +
-            e["hype_rank"]   * 0.10
+            e["rating_rank"] * 0.20
         )
 
     ranked = sorted(seen.values(), key=composite)
 
-    # ── Format + add dynamic activity metadata ───────────────
-    import random, math
-
-    # Seed with current hour so numbers stay stable for 1h but change each hour
-    hour_seed = int(datetime.utcnow().strftime("%Y%m%d%H"))
+    # ── Format ────────────────────────────────────────────────
+    def compact(n):
+        if n >= 1_000_000: return f"{n/1_000_000:.1f}M"
+        if n >= 1_000:     return f"{n/1_000:.1f}k"
+        return str(n)
 
     results = []
     for rank, entry in enumerate(ranked[:limit]):
         game = fmt(entry["raw"])
-        is_steam = entry["steam_rank"] < INF
+        gid  = game["id"]
+        sinfo = steam_info_map.get(gid, {})
+        is_steam = gid in steam_info_map
 
-        # ── Simulated activity numbers (weighted by rank + seeded randomness) ──
-        # Top-ranked games get higher base counts
-        rng = random.Random(hour_seed + game["id"])
-        # Monthly activity (30-day window — ~4x weekly numbers)
-        base_plays   = max(200, int(32000 / (rank + 1.5)))
-        base_entries = max(80,  int(12000 / (rank + 2.0)))
+        # Gerçek CCU verisi
+        ccu = sinfo.get("ccu", 0)
 
-        # Add organic variance ±30%
-        plays_this_month   = int(base_plays   * rng.uniform(0.70, 1.30))
-        entries_this_month = int(base_entries * rng.uniform(0.70, 1.30))
-
-        # Sleeper hit spike — indie gems punch above their weight
-        if rank % 5 == 4:
-            spike = rng.uniform(1.6, 2.8)
-            plays_this_month   = int(plays_this_month   * spike)
-            entries_this_month = int(entries_this_month * spike)
-
-        # Format as compact string: 12345 → "12.3k"
-        def compact(n):
-            if n >= 1000: return f"{n/1000:.1f}k"
-            return str(n)
-
-        # Monthly badge system
+        # Badge
         if rank == 0:
             badge = "🔥 #1 This Month"
         elif rank < 3:
-            badge = f"🔥 Monthly #{rank+1}"
-        elif is_steam:
+            badge = f"🔥 Top {rank+1}"
+        elif is_steam and ccu > 50000:
+            badge = "⚡ Massively Popular"
+        elif is_steam and ccu > 10000:
             badge = "⚡ Steam Hot"
-        elif rank % 5 == 4:
-            badge = "💎 Sleeper Hit"
-        elif entry["hype_rank"] < 5:
+        elif is_steam:
+            badge = "⚡ Trending on Steam"
+        elif entry["follow_rank"] < 5:
             badge = "📈 Rising Fast"
         else:
             badge = f"#{rank+1}"
 
-        game["steamTrending"]    = is_steam
-        game["trendScore"]       = round(composite(entry), 1)
-        game["trendRank"]        = rank + 1
-        game["badge"]            = badge
-        game["playsThisMonth"]   = plays_this_month
-        game["entriesThisMonth"] = entries_this_month
-        game["playsLabel"]       = compact(plays_this_month)
-        game["entriesLabel"]     = compact(entries_this_month)
+        game["steamTrending"]  = is_steam
+        game["trendScore"]     = round(composite(entry), 1)
+        game["trendRank"]      = rank + 1
+        game["badge"]          = badge
+        # Gerçek oyuncu sayısı — sadece Steam verisi varsa göster
+        game["ccu"]            = ccu
+        game["ccuLabel"]       = compact(ccu) if ccu > 0 else None
+        game["hasRealData"]    = is_steam and ccu > 0
         results.append(game)
 
     _trending_cache["data"] = results
     _trending_cache["ts"]   = datetime.utcnow()
     return results
 
+_recent_cache:     dict = {"data": [], "ts": datetime.min}
+_anticipated_cache: dict = {"data": [], "ts": datetime.min}
 
 @app.get("/api/recent")
 def get_recent(limit: int = 20):
+    global _recent_cache
+    age = (datetime.utcnow() - _recent_cache["ts"]).total_seconds()
+    if _recent_cache["data"] and age < 600:
+        return _recent_cache["data"][:limit]
     now = int(datetime.utcnow().timestamp())
     d30 = int((datetime.utcnow() - timedelta(days=30)).timestamp())
     raw = igdb("games",
         f"{BASE_FIELDS} where first_release_date>={d30}"
         f" & first_release_date<={now} & cover!=null & genres!=null;"
         f" sort first_release_date desc; limit {limit};")
-    return [fmt(g) for g in raw]
+    result = [fmt(g) for g in raw]
+    if result:
+        _recent_cache["data"] = result
+        _recent_cache["ts"]   = datetime.utcnow()
+    return result
 
 
 @app.get("/api/anticipated")
 def get_anticipated(limit: int = 14):
+    global _anticipated_cache
+    age = (datetime.utcnow() - _anticipated_cache["ts"]).total_seconds()
+    if _anticipated_cache["data"] and age < 600:
+        return _anticipated_cache["data"][:limit]
     now = int(datetime.utcnow().timestamp())
     fut = int((datetime.utcnow() + timedelta(days=365)).timestamp())
     raw = igdb("games",
         f"{BASE_FIELDS} where first_release_date>{now}"
         f" & first_release_date<{fut} & hypes>0 & cover!=null;"
         f" sort hypes desc; limit {limit};")
-    return [fmt(g) for g in raw]
+    result = [fmt(g) for g in raw]
+    if result:
+        _anticipated_cache["data"] = result
+        _anticipated_cache["ts"]   = datetime.utcnow()
+    return result
 
 
 
@@ -724,3 +761,46 @@ def suggest_games_by_genres(genres: str = Query(""), limit: int = Query(6)):
                 seen.add(g["id"])
                 results.append(fmt(g))
     return results[:limit]
+
+# ── Login ekranı hero görselleri ─────────────────────────────
+_hero_cache: dict = {"data": [], "ts": datetime.min}
+
+@app.get("/api/hero-images")
+def get_hero_images():
+    global _hero_cache
+    age = (datetime.utcnow() - _hero_cache["ts"]).total_seconds()
+    if _hero_cache["data"] and age < 21600:
+        return _hero_cache["data"]
+
+    game_ids = [
+        119133,  # Elden Ring
+        1877,    # Cyberpunk 2077
+        119388,  # God of War Ragnarok
+        25076,   # Red Dead Redemption 2
+        119171,  # Baldur's Gate 3
+        134597,  # The Last of Us Part I
+        214593,  # Alan Wake 2
+        228870,  # Black Myth Wukong
+        113112,  # Hogwarts Legacy
+        233475,  # Spider-Man 2
+    ]
+
+    id_str = ",".join(str(i) for i in game_ids)
+    raw = igdb("games",
+        f"fields name,screenshots.url,artworks.url; where id=({id_str}); limit 10;")
+
+    results = []
+    for g in raw:
+        arts  = g.get("artworks", [])
+        shots = g.get("screenshots", [])
+        imgs  = arts if arts else shots
+        if not imgs:
+            continue
+        url = "https:" + imgs[0]["url"].replace("t_thumb", "t_1080p")
+        results.append({"title": g.get("name", ""), "url": url})
+
+    if results:
+        _hero_cache["data"] = results
+        _hero_cache["ts"]   = datetime.utcnow()
+
+    return results

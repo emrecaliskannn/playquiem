@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Spinner } from './ui'
 
 import { API } from '../lib/supabase'
-const TEAL = '#0ea5e9'
+const TEAL = 'var(--accent)'
 const PLACEHOLDER = 'https://placehold.co/264x352/111116/94F5D8?text='
 
 // ── Stat pill ─────────────────────────────────────────────────
@@ -12,8 +12,8 @@ function StatPill({ value, label }) {
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '8px 16px',
-      background: 'rgba(14,165,233,0.06)',
-      border: '1px solid rgba(14,165,233,0.12)',
+      background: 'rgba(102,192,244,0.06)',
+      border: '1px solid rgba(102,192,244,0.12)',
       borderRadius: 10,
     }}>
       <span style={{
@@ -24,7 +24,7 @@ function StatPill({ value, label }) {
       <span style={{
         fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
         fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em',
-        textTransform: 'uppercase', color: 'rgba(14,165,233,0.35)',
+        textTransform: 'uppercase', color: 'rgba(102,192,244,0.35)',
         marginTop: 3, whiteSpace: 'nowrap',
       }}>{label}</span>
     </div>
@@ -44,8 +44,8 @@ function TrendingRow({ game, showReview = false }) {
       style={{
         display: 'flex', alignItems: 'center', gap: 14,
         padding: '10px 14px', cursor: 'pointer',
-        borderBottom: '1px solid rgba(14,165,233,0.05)',
-        background: hovered ? 'rgba(14,165,233,0.04)' : 'transparent',
+        borderBottom: '1px solid rgba(102,192,244,0.05)',
+        background: hovered ? 'rgba(102,192,244,0.04)' : 'transparent',
         transition: 'background 0.12s',
       }}
     >
@@ -54,8 +54,8 @@ function TrendingRow({ game, showReview = false }) {
         width: 28, flexShrink: 0, textAlign: 'center',
         fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
         fontWeight: 900, fontSize: '1.1rem',
-        color: game.rank <= 3 ? TEAL : 'rgba(14,165,233,0.25)',
-        textShadow: game.rank <= 3 ? '0 0 12px rgba(14,165,233,0.4)' : 'none',
+        color: game.rank <= 3 ? TEAL : 'rgba(102,192,244,0.25)',
+        textShadow: game.rank <= 3 ? '0 0 12px rgba(102,192,244,0.4)' : 'none',
       }}>
         {game.rank}
       </div>
@@ -68,7 +68,7 @@ function TrendingRow({ game, showReview = false }) {
         style={{
           width: 36, height: 48, objectFit: 'cover',
           borderRadius: 6, flexShrink: 0,
-          border: '1px solid rgba(14,165,233,0.1)',
+          border: '1px solid rgba(102,192,244,0.1)',
           transition: 'transform 0.15s',
           transform: hovered ? 'scale(1.05)' : 'scale(1)',
         }}
@@ -86,7 +86,7 @@ function TrendingRow({ game, showReview = false }) {
         {showReview && game.top_review ? (
           <div style={{
             fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-            fontSize: '0.66rem', color: 'rgba(14,165,233,0.4)',
+            fontSize: '0.66rem', color: 'rgba(102,192,244,0.4)',
             fontStyle: 'italic', marginTop: 2,
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
           }}>
@@ -95,7 +95,7 @@ function TrendingRow({ game, showReview = false }) {
         ) : (
           <div style={{
             fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-            fontSize: '0.62rem', color: 'rgba(14,165,233,0.3)', marginTop: 2,
+            fontSize: '0.62rem', color: 'rgba(102,192,244,0.3)', marginTop: 2,
           }}>
             {game.avg_rating ? `★ ${game.avg_rating} avg` : ''}
             {game.review_count > 0 ? ` · ${game.review_count} review${game.review_count > 1 ? 's' : ''}` : ''}
@@ -111,14 +111,14 @@ function TrendingRow({ game, showReview = false }) {
         <div style={{
           fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
           fontWeight: 900, fontSize: '1rem',
-          color: game.rank <= 3 ? TEAL : 'rgba(14,165,233,0.5)',
+          color: game.rank <= 3 ? TEAL : 'rgba(102,192,244,0.5)',
         }}>
           {game.log_count}
         </div>
         <div style={{
           fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
           fontSize: '0.52rem', fontWeight: 700, letterSpacing: '0.08em',
-          textTransform: 'uppercase', color: 'rgba(14,165,233,0.25)',
+          textTransform: 'uppercase', color: 'rgba(102,192,244,0.25)',
         }}>logs</div>
       </div>
     </div>
@@ -150,14 +150,14 @@ export default function CommunityTrending({ compact = false }) {
 
   return (
     <div style={{
-      background: '#0c1422',
-      border: '1px solid rgba(14,165,233,0.12)',
+      background: 'var(--bg)',
+      border: '1px solid rgba(102,192,244,0.12)',
       borderRadius: 16, overflow: 'hidden',
     }}>
       {/* Header */}
       <div style={{
         padding: '16px 18px 12px',
-        borderBottom: '1px solid rgba(14,165,233,0.08)',
+        borderBottom: '1px solid rgba(102,192,244,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         flexWrap: 'wrap', gap: 10,
       }}>
@@ -183,7 +183,7 @@ export default function CommunityTrending({ compact = false }) {
           </div>
           <div style={{
             fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-            fontSize: '0.58rem', color: 'rgba(14,165,233,0.3)',
+            fontSize: '0.58rem', color: 'rgba(102,192,244,0.3)',
             letterSpacing: '0.05em',
           }}>
             Most logged by our community this week
@@ -204,7 +204,7 @@ export default function CommunityTrending({ compact = false }) {
       {/* Tabs (full view only) */}
       {!compact && (
         <div style={{
-          display: 'flex', borderBottom: '1px solid rgba(14,165,233,0.08)',
+          display: 'flex', borderBottom: '1px solid rgba(102,192,244,0.08)',
         }}>
           {[['chart', ' Chart'], ['reviews', ' With Reviews']].map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)} style={{
@@ -212,7 +212,7 @@ export default function CommunityTrending({ compact = false }) {
               borderBottom: tab === key ? `2px solid ${TEAL}` : '2px solid transparent',
               fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
               fontWeight: 700, fontSize: '0.7rem', letterSpacing: '0.05em',
-              color: tab === key ? TEAL : 'rgba(14,165,233,0.35)',
+              color: tab === key ? TEAL : 'rgba(102,192,244,0.35)',
               cursor: 'pointer', transition: 'color 0.15s',
               marginBottom: -1,
             }}>
@@ -232,7 +232,7 @@ export default function CommunityTrending({ compact = false }) {
           <div style={{ fontSize: 36, marginBottom: 10 }}></div>
           <p style={{
             fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-            fontSize: '0.82rem', color: 'rgba(14,165,233,0.4)',
+            fontSize: '0.82rem', color: 'rgba(102,192,244,0.4)',
           }}>
             No logs this week yet — be the first!
           </p>
@@ -253,18 +253,18 @@ export default function CommunityTrending({ compact = false }) {
       {!compact && displayGames.length > 0 && (
         <div style={{
           padding: '10px 14px',
-          borderTop: '1px solid rgba(14,165,233,0.06)',
+          borderTop: '1px solid rgba(102,192,244,0.06)',
           textAlign: 'center',
         }}>
           <button onClick={() => nav('/activity')} style={{
             background: 'transparent', border: 'none', cursor: 'pointer',
             fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
             fontSize: '0.7rem', fontWeight: 700,
-            color: 'rgba(14,165,233,0.4)',
+            color: 'rgba(102,192,244,0.4)',
             transition: 'color 0.15s',
           }}
           onMouseEnter={e => e.currentTarget.style.color = TEAL}
-          onMouseLeave={e => e.currentTarget.style.color = 'rgba(14,165,233,0.4)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'rgba(102,192,244,0.4)'}
           >
             View all community activity →
           </button>

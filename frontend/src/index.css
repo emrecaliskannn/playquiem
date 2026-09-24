@@ -1,19 +1,53 @@
+
+/* ═══════════════════════════════════════════════
+   STEAM-STYLE THEME SYSTEM
+   ═══════════════════════════════════════════════ */
+
+:root, [data-theme="dark"] {
+  --bg:           #070b12;
+  --bg2:          #0a1018;
+  --surface:      #0f1c2e;
+  --surface2:     #142236;
+  --border:       rgba(14,165,233,0.12);
+  --border-solid: #1a2a3a;
+  --accent:       #0ea5e9;
+  --accent2:      #6366f1;
+  --text:         #e0f2fe;
+  --text2:        #7dd3fc;
+  --text3:        #38687a;
+  --green:        #2dc653;
+  --red:          #e63946;
+  --nav-bg:       #060a10;
+  --card-bg:      #0f1c2e;
+  --input-bg:     rgba(14,165,233,0.05);
+  --input-border: rgba(14,165,233,0.18);
+  --toast-bg:     #0f1c2e;
+  --toast-border: #1a2a3a;
+}
+
+
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  transition: background 0.2s, color 0.2s;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ── Playquiem Design System ───────────────────────────────── */
 :root {
-  --pq-mint:       #0ea5e9;
+  --pq-mint:       #60a5fa;
   --pq-mint-dim:   rgba(148, 245, 216, 0.12);
   --pq-mint-glow:  rgba(148, 245, 216, 0.25);
-  --pq-bg:         #070b12;
-  --pq-surf:       #0f1c2e;
-  --pq-surf2:      #142236;
+  --pq-bg:         #09090f;
+  --pq-surf:       #13131e;
+  --pq-surf2:      #1a1a2e;
   --pq-surf3:      #1e1e28;
   --pq-border:     rgba(148, 245, 216, 0.1);
   --pq-border-dim: rgba(255, 255, 255, 0.05);
-  --pq-text:       #0ea5e9;
+  --pq-text:       #60a5fa;
   --pq-text-dim:   rgba(148, 245, 216, 0.55);
   --pq-text-muted: rgba(148, 245, 216, 0.3);
   --pq-font:       'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -67,7 +101,7 @@
   input:focus, textarea:focus, select:focus {
     outline: none;
     border-color: var(--pq-mint-glow);
-    box-shadow: 0 0 0 3px rgba(14,165,233,0.08);
+    box-shadow: 0 0 0 3px rgba(96,165,250,0.08);
   }
   select option { background: var(--pq-surf2); color: var(--pq-mint); }
 
@@ -112,13 +146,13 @@
   .card-hover:hover {
     transform: translateY(-6px);
     border-color: var(--pq-mint-glow) !important;
-    box-shadow: 0 14px 48px rgba(14,165,233,0.1);
+    box-shadow: 0 14px 48px rgba(96,165,250,0.1);
   }
 
   /* Mint button */
   .pq-btn {
     background: var(--pq-mint);
-    color: #070b12;
+    color: #09090f;
     font-family: var(--pq-font);
     font-weight: 700;
     font-size: 0.8rem;
@@ -163,11 +197,11 @@
 
   /* Glow effect */
   .pq-glow {
-    text-shadow: 0 0 20px rgba(14,165,233,0.4);
+    text-shadow: 0 0 20px rgba(96,165,250,0.4);
   }
   .pq-glow-border {
-    box-shadow: 0 0 0 1px rgba(14,165,233,0.25),
-                0 0 24px rgba(14,165,233,0.08);
+    box-shadow: 0 0 0 1px rgba(96,165,250,0.25),
+                0 0 24px rgba(96,165,250,0.08);
   }
 
   /* Section label */
@@ -296,7 +330,7 @@ nav {
 
 /* Stronger glow on interactive elements */
 button:focus-visible, a:focus-visible {
-  outline: 2px solid #0ea5e9;
+  outline: 2px solid #60a5fa;
   outline-offset: 2px;
 }
 
@@ -304,29 +338,230 @@ button:focus-visible, a:focus-visible {
 .shimmer {
   background: linear-gradient(
     90deg,
-    #0f1c2e 25%,
-    #142236 50%,
-    #0f1c2e 75%
+    rgba(255,255,255,0.03) 0%,
+    rgba(102,192,244,0.08) 40%,
+    rgba(102,192,244,0.12) 50%,
+    rgba(102,192,244,0.08) 60%,
+    rgba(255,255,255,0.03) 100%
   );
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
+  background-size: 300% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 /* Navbar active underline glow */
 nav a.active-link {
-  text-shadow: 0 0 12px rgba(14,165,233,0.6);
+  text-shadow: 0 0 12px rgba(96,165,250,0.6);
 }
 
 /* Card hover — blue border glow */
 .card-hover:hover {
-  box-shadow: 0 0 0 1px rgba(14,165,233,0.4), 0 8px 24px rgba(14,165,233,0.1) !important;
+  box-shadow: 0 0 0 1px rgba(96,165,250,0.4), 0 8px 24px rgba(96,165,250,0.1) !important;
 }
 
 /* Scrollbar — blue tinted */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #070b12; }
-::-webkit-scrollbar-thumb { background: rgba(14,165,233,0.3); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(14,165,233,0.55); }
+::-webkit-scrollbar-track { background: #09090f; }
+::-webkit-scrollbar-thumb { background: rgba(96,165,250,0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(96,165,250,0.55); }
 
 /* Selection highlight */
-::selection { background: rgba(14,165,233,0.25); color: #e0f2fe; }
+::selection { background: rgba(96,165,250,0.25); color: #e0f2fe; }
+
+/* ═══════════════════════════════════════════════
+   MOBILE RESPONSIVE — Full overhaul
+   ═══════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+  /* ── Global ── */
+  * { -webkit-tap-highlight-color: rgba(96,165,250,0.1); }
+
+  /* ── Navbar ── */
+  .pq-nav-links { display: none !important; }
+  .pq-nav-search-btn { display: none !important; }
+
+  /* ── Home sidebar ── */
+  .pq-sidebar { display: none !important; }
+
+  /* ── Home layout ── */
+  .pq-home-layout {
+    flex-direction: column !important;
+    padding: 0 !important;
+  }
+  .pq-home-main {
+    padding: 0 12px !important;
+    max-width: 100% !important;
+  }
+
+  /* ── Section titles ── */
+  h1 { font-size: 1.6rem !important; }
+  h2 { font-size: 1.3rem !important; }
+
+  /* ── Game cards grid ── */
+  .pq-game-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+    gap: 10px !important;
+    padding: 0 12px !important;
+  }
+
+  /* ── All Games page ── */
+  .pq-allgames-filters {
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+  .pq-allgames-filters > div {
+    width: 100% !important;
+    flex: unset !important;
+  }
+
+  /* ── Game Detail hero ── */
+  .pq-game-hero-content {
+    flex-direction: column !important;
+    padding: 0 16px 32px !important;
+    margin-top: -120px !important;
+    gap: 16px !important;
+  }
+  .pq-game-cover {
+    width: 130px !important;
+  }
+
+  /* ── Horizontal scroll rows ── */
+  .pq-hscroll {
+    padding: 0 12px !important;
+  }
+
+  /* ── Log modal ── */
+  .pq-log-modal {
+    margin: 0 !important;
+    border-radius: 16px 16px 0 0 !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* ── Profile page ── */
+  .pq-profile-stats {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+
+  /* ── Bottom padding for mobile browsers ── */
+  .pq-page-content {
+    padding-bottom: 80px !important;
+  }
+
+  /* ── Diary/Library grid ── */
+  .pq-diary-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Community/Social ── */
+  .pq-community-layout {
+    flex-direction: column !important;
+  }
+
+  /* ── Ad sidebars ── */
+  .pq-ad-sidebar { display: none !important; }
+
+  /* ── Page layout wrapper ── */
+  .pq-page-layout {
+    flex-direction: column !important;
+  }
+}
+
+/* ── Tablet (768px - 1024px) ── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .pq-game-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+  }
+  .pq-sidebar { width: 160px !important; }
+  .pq-ad-sidebar { display: none !important; }
+}
+
+/* ── Mobile bottom nav ── */
+@media (max-width: 768px) {
+  
+}
+
+
+
+/* Mobile bottom nav - hidden on desktop, shown on mobile */
+.pq-mobile-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .pq-mobile-nav {
+    display: flex !important;
+    align-items: stretch;
+  }
+}
+
+/* ── Global mobile responsive fixes ── */
+@media (max-width: 640px) {
+  /* Tüm sayfalar için temel padding */
+  .max-w-screen-lg { padding-left: 12px !important; padding-right: 12px !important; }
+
+  /* Horizontal scroll olan satırlar parmakla kaydırılabilsin */
+  [style*="overflow-x: auto"], [style*="overflowX:'auto'"] {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  /* Diary tablo header'ı */
+  .diary-header { font-size: 0.5rem !important; }
+
+  /* Taşan metinler */
+  h1 { word-break: break-word; }
+
+  /* Modal genişliği */
+  .modal-inner { width: 100% !important; max-width: 100% !important; margin: 0 !important; }
+}
+
+/* Navbar altında içerik başlaması için */
+@media (max-width: 768px) {
+  /* HScroll barları gizle ama kaydırmayı koru */
+  ::-webkit-scrollbar { height: 0px; }
+}
+
+/* ── Polish: genel iyileştirmeler ── */
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
+
+/* Focus visible — klavye navigasyonu için */
+:focus-visible {
+  outline: 2px solid rgba(102,192,244,0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Buton press efekti */
+button:active:not(:disabled) { transform: scale(0.97); }
+
+/* Sayfa geçiş animasyonu */
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Card hover glow */
+.card-hover {
+  transition: all 0.2s ease !important;
+}
+.card-hover:hover {
+  border-color: rgba(102,192,244,0.3) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102,192,244,0.08) !important;
+}
+
+/* Link geçişleri */
+a { transition: color 0.15s, opacity 0.15s; }
+
+/* Image lazy load */
+img { transition: opacity 0.3s ease; }

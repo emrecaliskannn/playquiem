@@ -1,0 +1,13 @@
+-- Already applied to the live Supabase project on 2026-09-24. Kept for reference only.
+-- 1) logs: + tags, replayed columns
+-- 2) review_likes table + RLS (likes now work)
+-- 3) recent_reviews view: + igdb_id, platform, status, avatar_url, like_count; security_invoker
+-- 4) friend_feed: security_invoker
+-- 5) activity_feed view created (for /activity page)
+-- 6) duplicate trigger on_new_follow dropped (double follow notifications)
+-- 7) SECURITY DEFINER functions: search_path pinned, EXECUTE revoked from anon/authenticated
+-- 8) duplicate policies removed; notifications insert requires actor_id = auth.uid();
+--    games_cache is read-only for clients
+-- 9) unique(follower_id, following_id) on follows; indexes on logs(user_id), logs(igdb_id)
+-- 10) FKs to profiles(id) on logs, lists, challenges, friend_requests.from_id
+--     so PostgREST embeds like profiles(username) resolve

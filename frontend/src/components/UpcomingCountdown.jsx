@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const TEAL = '#0ea5e9'
+const TEAL = 'var(--accent)'
 const PLACEHOLDER = 'https://placehold.co/264x352/111116/94F5D8?text='
 
 // ── Live countdown hook ───────────────────────────────────────
@@ -35,8 +35,8 @@ function TimeBox({ value, label }) {
       minWidth: 38,
     }}>
       <div style={{
-        background: 'rgba(14,165,233,0.08)',
-        border: '1px solid rgba(14,165,233,0.18)',
+        background: 'rgba(102,192,244,0.08)',
+        border: '1px solid rgba(102,192,244,0.18)',
         borderRadius: 7, padding: '5px 8px',
         fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
         fontWeight: 900, fontSize: '1.1rem', lineHeight: 1,
@@ -50,7 +50,7 @@ function TimeBox({ value, label }) {
         fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
         fontSize: '0.48rem', fontWeight: 800,
         letterSpacing: '0.12em', textTransform: 'uppercase',
-        color: 'rgba(14,165,233,0.3)', marginTop: 3,
+        color: 'rgba(102,192,244,0.3)', marginTop: 3,
       }}>
         {label}
       </div>
@@ -79,12 +79,12 @@ function CountdownCard({ game, rank }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        background: hovered ? '#13131a' : '#0c1422',
-        border: `1px solid ${hovered ? 'rgba(14,165,233,0.22)' : 'rgba(14,165,233,0.08)'}`,
+        background: hovered ? '#13131a' : 'var(--bg)',
+        border: `1px solid ${hovered ? 'rgba(102,192,244,0.22)' : 'rgba(102,192,244,0.08)'}`,
         borderRadius: 14, overflow: 'hidden', cursor: 'pointer',
         transition: 'all 0.2s cubic-bezier(.4,0,.2,1)',
         transform: hovered ? 'translateY(-4px)' : 'translateY(0)',
-        boxShadow: hovered ? '0 12px 36px rgba(14,165,233,0.08)' : 'none',
+        boxShadow: hovered ? '0 12px 36px rgba(102,192,244,0.08)' : 'none',
       }}
     >
       {/* Cover with rank overlay */}
@@ -106,7 +106,7 @@ function CountdownCard({ game, rank }) {
           position: 'absolute', top: 8, left: 8,
           fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
           fontWeight: 900, fontSize: '1.6rem', lineHeight: 1,
-          color: TEAL, textShadow: '0 2px 14px rgba(14,165,233,0.6)',
+          color: TEAL, textShadow: '0 2px 14px rgba(102,192,244,0.6)',
         }}>
           #{rank}
         </div>
@@ -128,7 +128,7 @@ function CountdownCard({ game, rank }) {
           <div style={{
             position: 'absolute', top: 8, right: 8,
             background: 'rgba(245,169,79,0.85)',
-            color: '#070b12', fontSize: '0.5rem', fontWeight: 800,
+            color: 'var(--bg)', fontSize: '0.5rem', fontWeight: 800,
             padding: '3px 7px', borderRadius: 4,
             letterSpacing: '0.1em', textTransform: 'uppercase',
           }}>
@@ -158,7 +158,7 @@ function CountdownCard({ game, rank }) {
         {/* Release date */}
         <div style={{
           fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-          fontSize: '0.6rem', color: 'rgba(14,165,233,0.4)',
+          fontSize: '0.6rem', color: 'rgba(102,192,244,0.4)',
           marginBottom: 10,
         }}>
           {game.released || 'TBA'}
@@ -172,13 +172,13 @@ function CountdownCard({ game, rank }) {
               /* Days + hours + min */
               <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end' }}>
                 <TimeBox value={time.d} label="days" />
-                <div style={{ color: 'rgba(14,165,233,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
+                <div style={{ color: 'rgba(102,192,244,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
                 <TimeBox value={time.h} label="hrs"  />
-                <div style={{ color: 'rgba(14,165,233,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
+                <div style={{ color: 'rgba(102,192,244,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
                 <TimeBox value={time.m} label="min"  />
                 {time.d === 0 && (
                   <>
-                    <div style={{ color: 'rgba(14,165,233,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
+                    <div style={{ color: 'rgba(102,192,244,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
                     <TimeBox value={time.s} label="sec" />
                   </>
                 )}
@@ -187,9 +187,9 @@ function CountdownCard({ game, rank }) {
               /* Last day — show full h:m:s */
               <div style={{ display: 'flex', gap: 4 }}>
                 <TimeBox value={time.h} label="hrs" />
-                <div style={{ color: 'rgba(14,165,233,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
+                <div style={{ color: 'rgba(102,192,244,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
                 <TimeBox value={time.m} label="min" />
-                <div style={{ color: 'rgba(14,165,233,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
+                <div style={{ color: 'rgba(102,192,244,0.2)', fontSize: '0.9rem', marginBottom: 14 }}>:</div>
                 <TimeBox value={time.s} label="sec" />
               </div>
             )}
@@ -198,7 +198,7 @@ function CountdownCard({ game, rank }) {
           <div style={{
             fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
             fontSize: '0.68rem', fontWeight: 700,
-            color: 'rgba(14,165,233,0.3)',
+            color: 'rgba(102,192,244,0.3)',
           }}>
             Release date TBA
           </div>
@@ -215,21 +215,21 @@ function CountdownCard({ game, rank }) {
                 fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
                 fontSize: '0.55rem', fontWeight: 700,
                 letterSpacing: '0.1em', textTransform: 'uppercase',
-                color: 'rgba(14,165,233,0.28)',
+                color: 'rgba(102,192,244,0.28)',
               }}>Hype</span>
               <span style={{
                 fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                fontSize: '0.6rem', fontWeight: 800, color: 'rgba(14,165,233,0.5)',
+                fontSize: '0.6rem', fontWeight: 800, color: 'rgba(102,192,244,0.5)',
               }}>{game.hypes.toLocaleString()}</span>
             </div>
             <div style={{
-              height: 3, background: 'rgba(14,165,233,0.08)',
+              height: 3, background: 'rgba(102,192,244,0.08)',
               borderRadius: 2, overflow: 'hidden',
             }}>
               <div style={{
                 height: '100%', borderRadius: 2,
                 width: `${Math.min((game.hypes / 1000) * 100, 100)}%`,
-                background: `linear-gradient(90deg, rgba(14,165,233,0.4), ${TEAL})`,
+                background: `linear-gradient(90deg, rgba(102,192,244,0.4), ${TEAL})`,
                 transition: 'width 0.8s ease',
               }}/>
             </div>
@@ -251,8 +251,8 @@ export default function UpcomingCountdown({ games = [], loading = false }) {
       }}>
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} style={{
-            background: '#0c1422', borderRadius: 14, overflow: 'hidden',
-            border: '1px solid rgba(14,165,233,0.06)',
+            background: 'var(--bg)', borderRadius: 14, overflow: 'hidden',
+            border: '1px solid rgba(102,192,244,0.06)',
           }}>
             <div className="shimmer" style={{ aspectRatio: '3/4' }}/>
             <div style={{ padding: '10px 12px 12px' }}>
@@ -277,7 +277,7 @@ export default function UpcomingCountdown({ games = [], loading = false }) {
         <div style={{ fontSize: 36, marginBottom: 10 }}>⏳</div>
         <p style={{
           fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-          fontSize: '0.82rem', color: 'rgba(14,165,233,0.35)',
+          fontSize: '0.82rem', color: 'rgba(102,192,244,0.35)',
         }}>No upcoming games found</p>
       </div>
     )

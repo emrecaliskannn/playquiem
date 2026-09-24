@@ -79,15 +79,43 @@ export async function isLogged(igdbId) {
 
 // ── Reviews ──────────────────────────────────────────────────
 export async function getRecentReviews(limit = 20) {
-  const { data } = await supabase
+  // Try the view first, fallback to logs table
+  const { data, error } = await supabase
     .from('recent_reviews').select('*').limit(limit)
-  return data || []
+  if (!error) return data || []
+  // Fallback: query logs directly with review content
+  const { data: fallback } = await supabase
+    .from('logs').select('*, profiles(username, avatar_url, display_name)')
+    .not('review', 'is', null)
+    .not('review', 'eq', '')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  return (fallback || []).map(l => ({
+    ...l,
+    username: l.profiles?.username,
+    avatar_url: l.profiles?.avatar_url,
+    display_name: l.profiles?.display_name,
+    like_count: 0,
+  }))
 }
 
 export async function getGameReviews(title) {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('recent_reviews').select('*').eq('title', title).limit(10)
-  return data || []
+  if (!error) return data || []
+  const { data: fallback } = await supabase
+    .from('logs').select('*, profiles(username, avatar_url, display_name)')
+    .eq('title', title)
+    .not('review', 'is', null)
+    .not('review', 'eq', '')
+    .order('created_at', { ascending: false })
+    .limit(10)
+  return (fallback || []).map(l => ({
+    ...l,
+    username: l.profiles?.username,
+    avatar_url: l.profiles?.avatar_url,
+    like_count: 0,
+  }))
 }
 
 // ── Social ───────────────────────────────────────────────────
@@ -96,7 +124,7 @@ export async function getFriendFeed() {
   const user = session?.user
   if (!user) return []
   const { data } = await supabase
-    .from('friend_feed').select('*, review_likes(count)')
+    .from('friend_feed').select('*')
     .eq('follower_id', user.id)
     .order('created_at', { ascending: false })
     .limit(30)
@@ -114,22 +142,7 @@ export async function followUser(targetId) {
     .insert({ follower_id: user.id, following_id: targetId })
 
   if (error && !error.message.includes('duplicate')) throw new Error(error.message)
-
-  // Send notification directly from JS — reliable regardless of trigger status
-  const { data: prof } = await supabase
-    .from('profiles').select('username').eq('id', user.id).single()
-  const actor = prof?.username || 'Someone'
-
-  const { error: notifError } = await supabase.from('notifications').insert({
-    user_id:    targetId,
-    type:       'follow',
-    actor_id:   user.id,
-    actor_name: actor,
-    message:    actor + ' started following you',
-    link:       '/profile/' + user.id,
-    read:       false,
-  })
-  if (notifError) console.warn(notifError.message)
+  // The follow notification is created by the `on_follow` database trigger.
 }
 
 export async function unfollowUser(targetId) {
@@ -243,16 +256,53 @@ export async function getPendingRequests() {
   return data || []
 }
 
+
+export async function searchMembersLight(q, limit = 20) {
+  const { data: { session } } = await supabase.auth.getSession()
+  const uid = session?.user?.id
+
+  let query = supabase
+    .from('profiles')
+    .select('id, username, display_name, avatar_url, bio')
+    .not('username', 'is', null)
+    .limit(limit)
+
+  if (q && q.trim()) {
+    query = query.or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
+  } else {
+    query = query.order('username', { ascending: true })
+  }
+
+  const { data } = await query
+  return (data || []).map(u => ({ ...u, gameCount: 0, isFollowing: false }))
+}
+
 export async function searchMembers(q, limit = 10) {
   if (!q.trim()) return []
   const { data: { session } } = await supabase.auth.getSession()
   const uid = session?.user?.id
 
-  // Search by username
-  const { data: users } = await supabase
+  // Search by username OR display_name, filter out null usernames
+  const { data: byUsername } = await supabase
     .from('profiles').select('*')
     .ilike('username', `%${q}%`)
+    .not('username', 'is', null)
     .limit(limit)
+
+  const { data: byDisplay } = await supabase
+    .from('profiles').select('*')
+    .ilike('display_name', `%${q}%`)
+    .not('username', 'is', null)
+    .limit(limit)
+
+  // Merge and deduplicate
+  const seen = new Set()
+  const users = [...(byUsername || []), ...(byDisplay || [])].filter(u => {
+    if (seen.has(u.id)) return false
+    seen.add(u.id)
+    return true
+  }).slice(0, limit)
+
   if (!users?.length) return []
 
   // Enrich with game count + following status

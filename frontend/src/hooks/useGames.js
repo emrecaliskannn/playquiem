@@ -114,11 +114,23 @@ export function useGame(id) {
 export function useSection(endpoint) {
   const [data,    setData]    = useState([])
   const [loading, setLoading] = useState(true)
-  useEffect(() => {
+
+  const fetchData = useCallback(() => {
     fetch(API + '/api/' + endpoint)
       .then(r => r.json())
       .then(d => { setData(d); setLoading(false) })
       .catch(() => setLoading(false))
   }, [endpoint])
+
+  // İlk yükleme
+  useEffect(() => { fetchData() }, [fetchData])
+
+  // Sekmeye/sayfaya geri dönünce yenile
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchData() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [fetchData])
+
   return { data, loading }
 }

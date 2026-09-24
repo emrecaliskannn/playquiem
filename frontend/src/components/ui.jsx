@@ -54,7 +54,7 @@ export function GameCard({ game, onLog, logged }) {
   const [imgErr, setImgErr] = useState(false)
   const [hov, setHov] = useState(false)
   const F = '"Helvetica Neue",Helvetica,Arial,sans-serif'
-  const T = '#0ea5e9'
+  const T = 'var(--accent)'
 
   return (
     <div style={{ width: '100%' }}>
@@ -69,12 +69,12 @@ export function GameCard({ game, onLog, logged }) {
           paddingBottom: '133.33%', /* 3:4 ratio */
           borderRadius: 10,
           overflow: 'hidden',
-          background: '#0f1c2e',
-          border: `1px solid ${hov ? 'rgba(14,165,233,0.4)' : 'rgba(14,165,233,0.08)'}`,
+          background: 'var(--surface)',
+          border: `1px solid ${hov ? 'rgba(102,192,244,0.5)' : 'rgba(102,192,244,0.08)'}`,
           cursor: 'pointer',
-          transform: hov ? 'translateY(-3px)' : 'none',
-          boxShadow: hov ? '0 8px 24px rgba(14,165,233,0.12)' : 'none',
-          transition: 'all 0.18s ease',
+          transform: hov ? 'translateY(-4px) scale(1.02)' : 'none',
+          boxShadow: hov ? '0 12px 32px rgba(102,192,244,0.15), 0 0 0 1px rgba(102,192,244,0.2)' : 'none',
+          transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
       >
         <img
@@ -125,20 +125,20 @@ export function GameCard({ game, onLog, logged }) {
               style={{
                 width: '100%', height: '100%',
                 fontFamily: F, fontSize: '0.7rem', fontWeight: 700,
-                color: 'rgba(14,165,233,0.75)',
-                border: '1px solid rgba(14,165,233,0.18)',
-                background: 'rgba(14,165,233,0.04)',
+                color: 'rgba(102,192,244,0.75)',
+                border: '1px solid rgba(102,192,244,0.18)',
+                background: 'rgba(102,192,244,0.04)',
                 borderRadius: 7, cursor: 'pointer', transition: 'all 0.15s',
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.color = T
-                e.currentTarget.style.borderColor = 'rgba(14,165,233,0.4)'
-                e.currentTarget.style.background = 'rgba(14,165,233,0.1)'
+                e.currentTarget.style.borderColor = 'rgba(102,192,244,0.4)'
+                e.currentTarget.style.background = 'rgba(102,192,244,0.1)'
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.color = 'rgba(14,165,233,0.75)'
-                e.currentTarget.style.borderColor = 'rgba(14,165,233,0.18)'
-                e.currentTarget.style.background = 'rgba(14,165,233,0.04)'
+                e.currentTarget.style.color = 'rgba(102,192,244,0.75)'
+                e.currentTarget.style.borderColor = 'rgba(102,192,244,0.18)'
+                e.currentTarget.style.background = 'rgba(102,192,244,0.04)'
               }}
             >+ Log</button>
           )
@@ -188,7 +188,7 @@ export function Avatar({ name = '?', size = 'md', src }) {
 export function ReviewCard({ review, liked: initialLiked = false }) {
   const PLACEHOLDER = 'https://placehold.co/264x352/0f1c2e/0ea5e9?text='
   const F = '"Helvetica Neue",Helvetica,Arial,sans-serif'
-  const T = '#0ea5e9'
+  const T = 'var(--accent)'
   const { user } = useAuthStore()
   const [liked,     setLiked]     = useState(initialLiked)
   const [likeCount, setLikeCount] = useState(review.like_count || 0)
@@ -212,8 +212,8 @@ export function ReviewCard({ review, liked: initialLiked = false }) {
 
   return (
     <div style={{
-      background: '#0f1c2e',
-      border: `1px solid ${liked ? 'rgba(14,165,233,0.3)' : 'rgba(14,165,233,0.08)'}`,
+      background: 'var(--surface)',
+      border: `1px solid ${liked ? 'rgba(102,192,244,0.3)' : 'rgba(102,192,244,0.08)'}`,
       borderRadius: 14, padding: 16,
       transition: 'border-color 0.15s',
     }}>
@@ -225,7 +225,7 @@ export function ReviewCard({ review, liked: initialLiked = false }) {
                         overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
             {review.display_name || review.username}
           </div>
-          <div style={{ fontFamily:F, fontSize:'0.62rem', color:'rgba(14,165,233,0.35)' }}>
+          <div style={{ fontFamily:F, fontSize:'0.62rem', color:'rgba(102,192,244,0.35)' }}>
             {review.created_at?.slice(0,10)}
           </div>
         </div>
@@ -233,22 +233,22 @@ export function ReviewCard({ review, liked: initialLiked = false }) {
         <button onClick={handleLike} disabled={!user || loading} style={{
           display:'flex', alignItems:'center', gap:5,
           padding:'5px 12px', borderRadius:20, cursor: user ? 'pointer' : 'default',
-          background: liked ? 'rgba(14,165,233,0.15)' : 'rgba(14,165,233,0.05)',
-          border: `1px solid ${liked ? 'rgba(14,165,233,0.4)' : 'rgba(14,165,233,0.12)'}`,
+          background: liked ? 'rgba(102,192,244,0.15)' : 'rgba(102,192,244,0.05)',
+          border: `1px solid ${liked ? 'rgba(102,192,244,0.4)' : 'rgba(102,192,244,0.12)'}`,
           transition:'all 0.15s',
           opacity: loading ? 0.6 : 1,
         }}
-        onMouseEnter={e => { if(user) e.currentTarget.style.background='rgba(14,165,233,0.18)' }}
-        onMouseLeave={e => e.currentTarget.style.background = liked ? 'rgba(14,165,233,0.15)' : 'rgba(14,165,233,0.05)'}
+        onMouseEnter={e => { if(user) e.currentTarget.style.background='rgba(102,192,244,0.18)' }}
+        onMouseLeave={e => e.currentTarget.style.background = liked ? 'rgba(102,192,244,0.15)' : 'rgba(102,192,244,0.05)'}
         >
           <svg width="13" height="13" viewBox="0 0 24 24"
             fill={liked ? T : 'none'}
-            stroke={liked ? T : 'rgba(14,165,233,0.5)'}
+            stroke={liked ? T : 'rgba(102,192,244,0.5)'}
             strokeWidth="2" style={{ transition:'all 0.15s', transform: liked ? 'scale(1.15)' : 'scale(1)' }}>
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
           <span style={{ fontFamily:F, fontSize:'0.68rem', fontWeight:700,
-                          color: liked ? T : 'rgba(14,165,233,0.45)' }}>
+                          color: liked ? T : 'rgba(102,192,244,0.45)' }}>
             {likeCount > 0 ? likeCount : ''}
           </span>
         </button>
@@ -257,16 +257,28 @@ export function ReviewCard({ review, liked: initialLiked = false }) {
       {/* Game info */}
       <div style={{ display:'flex', gap:10, alignItems:'flex-start', marginBottom:10 }}>
         <img src={review.cover_url || PLACEHOLDER}
+          onClick={() => review.igdb_id && nav(`/game/${review.igdb_id}`)}
           style={{ width:34, height:46, objectFit:'cover', borderRadius:6, flexShrink:0,
-                    border:'1px solid rgba(14,165,233,0.1)' }}
+                    border:'1px solid rgba(102,192,244,0.1)',
+                    cursor: review.igdb_id ? 'pointer' : 'default',
+                    transition:'opacity 0.15s' }}
+          onMouseEnter={e => { if(review.igdb_id) e.target.style.opacity='0.8' }}
+          onMouseLeave={e => e.target.style.opacity='1'}
           onError={e => e.target.src = PLACEHOLDER}/>
         <div>
-          <div style={{ fontFamily:F, fontWeight:700, fontSize:'0.88rem', color:'#ffffff', marginBottom:2 }}>
+          <div
+            onClick={() => review.igdb_id && nav(`/game/${review.igdb_id}`)}
+            style={{ fontFamily:F, fontWeight:700, fontSize:'0.88rem', color:'var(--text)', marginBottom:2,
+                     cursor: review.igdb_id ? 'pointer' : 'default',
+                     transition:'color 0.15s' }}
+            onMouseEnter={e => { if(review.igdb_id) e.target.style.color='var(--accent)' }}
+            onMouseLeave={e => e.target.style.color='var(--text)'}
+          >
             {review.title}
           </div>
-          <div style={{ fontSize:'0.72rem', color:'rgba(14,165,233,0.6)' }}>
+          <div style={{ fontSize:'0.72rem', color:'rgba(102,192,244,0.6)' }}>
             {'★'.repeat(review.rating||0)}
-            <span style={{ color:'rgba(14,165,233,0.15)' }}>{'★'.repeat(5-(review.rating||0))}</span>
+            <span style={{ color:'rgba(102,192,244,0.15)' }}>{'★'.repeat(5-(review.rating||0))}</span>
           </div>
         </div>
       </div>
@@ -276,7 +288,7 @@ export function ReviewCard({ review, liked: initialLiked = false }) {
         <p style={{
           fontFamily:F, fontSize:'0.78rem', lineHeight:1.65,
           color:'rgba(255,255,255,0.6)',
-          borderLeft:'2px solid rgba(14,165,233,0.15)',
+          borderLeft:'2px solid rgba(102,192,244,0.15)',
           paddingLeft:10, margin:0, fontStyle:'italic',
           display:'-webkit-box', WebkitLineClamp:4, WebkitBoxOrient:'vertical',
           overflow:'hidden',
@@ -296,7 +308,7 @@ export function Spinner({ size = 'md' }) {
 
 // ── Empty state ───────────────────────────────────────────────
 export function EmptyState({ icon = '', title, subtitle, action, onAction }) {
-  const T = '#0ea5e9'
+  const T = 'var(--accent)'
   const F = '"Helvetica Neue",Helvetica,Arial,sans-serif'
 
   // SVG illustration — subtle teal geometric shapes
@@ -334,13 +346,13 @@ export function EmptyState({ icon = '', title, subtitle, action, onAction }) {
       {subtitle && (
         <div style={{
           fontFamily: F, fontSize: '0.82rem',
-          color: 'rgba(14,165,233,0.4)', maxWidth: 340, margin: '0 auto',
+          color: 'rgba(102,192,244,0.4)', maxWidth: 340, margin: '0 auto',
           lineHeight: 1.6,
         }}>{subtitle}</div>
       )}
       {action && onAction && (
         <button onClick={onAction} style={{
-          marginTop: 20, background: T, color: '#070b12',
+          marginTop: 20, background: T, color: 'var(--bg)',
           fontFamily: F, fontWeight: 800, fontSize: '0.8rem',
           padding: '10px 22px', borderRadius: 10, border: 'none',
           cursor: 'pointer', letterSpacing: '0.03em',

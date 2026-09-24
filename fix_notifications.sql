@@ -81,7 +81,7 @@ begin
 
   insert into public.notifications(user_id, type, actor_id, actor_name, message, link)
   values (
-    new.to_id, 'follow', new.from_id,
+    new.to_id, 'friend_request', new.from_id,
     coalesce(actor_username, 'Someone'),
     coalesce(actor_username, 'Someone') || ' sent you a friend request',
     '/notifications'

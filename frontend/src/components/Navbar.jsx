@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { MagnifyingGlass, X, Bell, User, GameController, House, BookOpen, List, UsersThree, Newspaper, SignOut, CaretDown } from '@phosphor-icons/react'
 import { useAuthStore } from '../store/authStore'
-import { API } from '../lib/supabase'
+import { API, supabase } from '../lib/supabase'
 
 const NAV = [
   { label: 'GAMES',     to: '/'          },
@@ -11,17 +11,18 @@ const NAV = [
   { label: 'COMMUNITY', to: '/community' },
   { label: 'NEWS',      to: '/news'      },
   { label: 'PLAYERS',   to: '/players'   },
-  { label: 'LISTS',     to: '/lists'     },
 ]
+
 
 export default function Navbar() {
   const { user, profile, signOut } = useAuthStore()
-  const [menuOpen,   setMenuOpen]   = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [q,          setQ]          = useState('')
-  const [results,    setResults]    = useState([])
-  const [searching,  setSearching]  = useState(false)
-  const [activeIdx,  setActiveIdx]  = useState(-1)
+  const [menuOpen,    setMenuOpen]   = useState(false)
+  const [searchOpen,  setSearchOpen] = useState(false)
+  const [q,           setQ]          = useState('')
+  const [results,     setResults]    = useState([])
+  const [searching,   setSearching]  = useState(false)
+  const [activeIdx,   setActiveIdx]  = useState(-1)
+  const [unreadCount, setUnreadCount] = useState(0)
   const searchRef  = useRef(null)
   const timerRef   = useRef(null)
   const inputRef   = useRef(null)
@@ -64,6 +65,40 @@ export default function Navbar() {
     return () => clearTimeout(timerRef.current)
   }, [q])
 
+  // Okunmamış bildirim sayacı + realtime subscription
+  useEffect(() => {
+    if (!user) { setUnreadCount(0); return }
+
+    // İlk yükleme
+    supabase.from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('read', false)
+      .then(({ count }) => setUnreadCount(count || 0))
+
+    // Realtime — yeni bildirim gelince sayacı artır
+    const channel = supabase
+      .channel('notif-badge')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${user.id}`,
+      }, () => setUnreadCount(c => c + 1))
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${user.id}`,
+      }, payload => {
+        // Mark all read çağrıldığında sıfırla
+        if (payload.new?.read) setUnreadCount(0)
+      })
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
+  }, [user])
+
   // Close on outside click
   useEffect(() => {
     const h = e => { if (searchRef.current && !searchRef.current.contains(e.target)) closeSearch() }
@@ -89,8 +124,8 @@ export default function Navbar() {
         style={{ height: 58 }}
       >
         <div
-          className="mx-auto h-full flex items-center gap-0 px-6"
-          style={{ maxWidth: 1400 }}
+          className="mx-auto h-full flex items-center gap-0"
+          style={{ maxWidth: 1400, padding: '0 20px', width: '100%' }}
         >
 
           {/* ── Logo ── */}
@@ -104,15 +139,15 @@ export default function Navbar() {
               fontWeight: 800,
               fontSize: '1.15rem',
               letterSpacing: '-0.02em',
-              color: '#0ea5e9',
-              textShadow: '0 0 20px rgba(14,165,233,0.3)',
+              color: 'var(--accent)',
+              textShadow: '0 0 20px rgba(102,192,244,0.3)',
             }}>
               Playquiem
             </span>
           </Link>
 
           {/* ── Nav links ── */}
-          <div className="hidden md:flex items-stretch h-full flex-1">
+          <div className="hidden md:flex items-stretch h-full flex-1 justify-center">
             {NAV.map(({ label, to }) => {
               const active = loc.pathname === to
               return (
@@ -125,14 +160,14 @@ export default function Navbar() {
                     fontSize: '0.68rem',
                     fontWeight: 700,
                     letterSpacing: '0.12em',
-                    color: active ? '#0ea5e9' : 'rgba(14,165,233,0.45)',
-                    borderBottom: active ? '2px solid #0ea5e9' : '2px solid transparent',
+                    color: active ? 'var(--accent)' : 'rgba(102,192,244,0.45)',
+                    borderBottom: active ? '2px solid var(--accent)' : '2px solid transparent',
                     whiteSpace: 'nowrap',
                     transition: 'color 0.15s, border-color 0.15s',
                     textDecoration: 'none',
                   }}
-                  onMouseEnter={e => { if (!active) e.target.style.color = 'rgba(14,165,233,0.8)' }}
-                  onMouseLeave={e => { if (!active) e.target.style.color = 'rgba(14,165,233,0.45)' }}
+                  onMouseEnter={e => { if (!active) e.target.style.color = 'rgba(102,192,244,0.8)' }}
+                  onMouseLeave={e => { if (!active) e.target.style.color = 'rgba(102,192,244,0.45)' }}
                 >
                   {label}
                 </Link>
@@ -150,9 +185,9 @@ export default function Navbar() {
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: searchOpen ? '#0ea5e9' : 'rgba(14,165,233,0.4)',
+                color: searchOpen ? 'var(--accent)' : 'rgba(102,192,244,0.4)',
               }}
-              onMouseEnter={e => e.currentTarget.style.background='rgba(14,165,233,0.08)'}
+              onMouseEnter={e => e.currentTarget.style.background='rgba(102,192,244,0.08)'}
               onMouseLeave={e => e.currentTarget.style.background='transparent'}
             >
               {searchOpen ? <X size={17} /> : <MagnifyingGlass size={17} weight="bold"/>}
@@ -161,14 +196,27 @@ export default function Navbar() {
             {/* Notification bell */}
             {user && (
               <button
-                onClick={() => nav('/notifications')}
+                onClick={() => { nav('/notifications'); setUnreadCount(0) }}
                 className="p-2 rounded-lg transition-colors"
-                style={{ background: 'transparent', border: 'none', color: 'rgba(14,165,233,0.4)', fontSize: 16 }}
-                onMouseEnter={e => e.currentTarget.style.background='rgba(14,165,233,0.08)'}
+                style={{ position:'relative', background: 'transparent', border: 'none', color: unreadCount > 0 ? 'var(--accent)' : 'rgba(102,192,244,0.4)', fontSize: 16 }}
+                onMouseEnter={e => e.currentTarget.style.background='rgba(102,192,244,0.08)'}
                 onMouseLeave={e => e.currentTarget.style.background='transparent'}
                 title="Notifications"
               >
-                
+                <Bell size={18} weight={unreadCount > 0 ? 'fill' : 'regular'} />
+                {unreadCount > 0 && (
+                  <span style={{
+                    position: 'absolute', top: 4, right: 4,
+                    minWidth: 16, height: 16, borderRadius: 8,
+                    background: '#e63946', color: '#fff',
+                    fontSize: '0.55rem', fontWeight: 800,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 3px', lineHeight: 1,
+                    border: '1.5px solid var(--nav-bg)',
+                  }}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
               </button>
             )}
 
@@ -179,28 +227,28 @@ export default function Navbar() {
                   onClick={() => setMenuOpen(m => !m)}
                   className="flex items-center gap-2 rounded-xl px-3 py-1.5 transition-all"
                   style={{
-                    background: 'rgba(14,165,233,0.07)',
-                    border: '1px solid rgba(14,165,233,0.15)',
+                    background: 'rgba(102,192,244,0.07)',
+                    border: '1px solid rgba(102,192,244,0.15)',
                     cursor: 'pointer',
                     fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background='rgba(14,165,233,0.12)'}
-                  onMouseLeave={e => e.currentTarget.style.background='rgba(14,165,233,0.07)'}
+                  onMouseEnter={e => e.currentTarget.style.background='rgba(102,192,244,0.12)'}
+                  onMouseLeave={e => e.currentTarget.style.background='rgba(102,192,244,0.07)'}
                 >
                   {/* Avatar */}
                   <div style={{
                     width: 26, height: 26, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #0ea5e9, rgba(14,165,233,0.4))',
+                    background: 'linear-gradient(135deg, #60a5fa, rgba(102,192,244,0.4))',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.7rem', fontWeight: 800, color: '#070b12', flexShrink: 0,
+                    fontSize: '0.7rem', fontWeight: 800, color: 'var(--bg)', flexShrink: 0,
                   }}>
                     {initials}
                   </div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#0ea5e9', display: 'none' }}
+                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--accent)', display: 'none' }}
                         className="sm:block">
                     @{profile?.username || '…'}
                   </span>
-                  <span style={{ fontSize: '0.6rem', color: 'rgba(14,165,233,0.35)' }}></span>
+                  <span style={{ fontSize: '0.6rem', color: 'rgba(102,192,244,0.35)' }}></span>
                 </button>
 
                 {menuOpen && (
@@ -208,9 +256,9 @@ export default function Navbar() {
                     className="absolute right-0 top-full mt-2 rounded-xl overflow-hidden"
                     style={{
                       width: 200,
-                      background: '#0f1c2e',
-                      border: '1px solid rgba(14,165,233,0.12)',
-                      boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(14,165,233,0.05)',
+                      background: 'var(--surface)',
+                      border: '1px solid rgba(102,192,244,0.12)',
+                      boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(102,192,244,0.05)',
                       zIndex: 100,
                     }}
                   >
@@ -218,6 +266,7 @@ export default function Navbar() {
                       { icon: null, label: 'My Profile',    to: '/profile'      },
                       { icon: '', label: 'My Library',    to: '/library'      },
                       { icon: <BookOpen size={16} weight='bold'/>, label: 'Diary',         to: '/diary'        },
+                      { icon: '', label: 'My Lists',      to: '/lists'        },
                       { icon: '', label: 'For You',       to: '/for-you'      },
                       { icon: '', label: 'Achievements',  to: '/achievements' },
                       { icon: '', label: 'Year in Review',to: '/year-review'  },
@@ -234,25 +283,25 @@ export default function Navbar() {
                           padding: '9px 16px',
                           fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
                           fontSize: '0.8rem', fontWeight: 500,
-                          color: 'rgba(14,165,233,0.75)',
+                          color: 'rgba(102,192,244,0.75)',
                           textDecoration: 'none',
-                          borderBottom: '1px solid rgba(14,165,233,0.04)',
+                          borderBottom: '1px solid rgba(102,192,244,0.04)',
                           transition: 'background 0.12s, color 0.12s',
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.background = 'rgba(14,165,233,0.07)'
-                          e.currentTarget.style.color = '#0ea5e9'
+                          e.currentTarget.style.background = 'rgba(102,192,244,0.07)'
+                          e.currentTarget.style.color = 'var(--accent)'
                         }}
                         onMouseLeave={e => {
                           e.currentTarget.style.background = 'transparent'
-                          e.currentTarget.style.color = 'rgba(14,165,233,0.75)'
+                          e.currentTarget.style.color = 'rgba(102,192,244,0.75)'
                         }}
                       >
                         <span style={{ fontSize: 14 }}>{icon}</span>
                         {label}
                       </Link>
                     ))}
-                    <div style={{ borderTop: '1px solid rgba(14,165,233,0.08)' }} />
+                    <div style={{ borderTop: '1px solid rgba(102,192,244,0.08)' }} />
                     <button
                       onClick={async () => {
                         setMenuOpen(false)
@@ -280,7 +329,7 @@ export default function Navbar() {
                 to="/auth"
                 style={{
                   display: 'inline-flex', alignItems: 'center',
-                  background: '#0ea5e9', color: '#070b12',
+                  background: 'var(--accent)', color: 'var(--bg)',
                   fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
                   fontWeight: 800, fontSize: '0.72rem', letterSpacing: '0.06em',
                   padding: '7px 16px', borderRadius: 8,
@@ -302,13 +351,13 @@ export default function Navbar() {
             position: 'absolute', top: 58, left: 0, right: 0,
             background: 'rgba(10,10,10,0.97)',
             backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid rgba(14,165,233,0.1)',
+            borderBottom: '1px solid rgba(102,192,244,0.1)',
             zIndex: 200,
           }}>
             {/* Search input */}
             <form onSubmit={handleSearch} style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: 10 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                   stroke="rgba(14,165,233,0.4)" strokeWidth="2.5" style={{flexShrink:0}}>
+                   stroke="rgba(102,192,244,0.4)" strokeWidth="2.5" style={{flexShrink:0}}>
                 <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
               </svg>
               <input
@@ -323,21 +372,21 @@ export default function Navbar() {
                   background: 'transparent',
                   border: 'none',
                   fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
-                  fontSize: '1rem', color: '#0ea5e9',
-                  outline: 'none', caretColor: '#0ea5e9',
+                  fontSize: '1rem', color: 'var(--accent)',
+                  outline: 'none', caretColor: 'var(--accent)',
                 }}
               />
               {searching && (
                 <div style={{
                   width: 14, height: 14, borderRadius: '50%', flexShrink: 0,
-                  border: '2px solid rgba(14,165,233,0.2)',
-                  borderTopColor: '#0ea5e9',
+                  border: '2px solid rgba(102,192,244,0.2)',
+                  borderTopColor: 'var(--accent)',
                   animation: 'spin 0.7s linear infinite',
                 }}/>
               )}
               {q && !searching && (
                 <button onClick={() => { setQ(''); setResults([]); inputRef.current?.focus() }}
-                  style={{ background:'none', border:'none', color:'rgba(14,165,233,0.35)',
+                  style={{ background:'none', border:'none', color:'rgba(102,192,244,0.35)',
                            cursor:'pointer', fontSize:20, lineHeight:1, padding:0, flexShrink:0 }}>
                   ×
                 </button>
@@ -346,7 +395,7 @@ export default function Navbar() {
 
             {/* Results */}
             {results.length > 0 && (
-              <div style={{ borderTop: '1px solid rgba(14,165,233,0.08)' }}>
+              <div style={{ borderTop: '1px solid rgba(102,192,244,0.08)' }}>
                 {results.map((game, i) => (
                   <div
                     key={game.id}
@@ -354,11 +403,11 @@ export default function Navbar() {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 12,
                       padding: '10px 24px', cursor: 'pointer',
-                      background: i === activeIdx ? 'rgba(14,165,233,0.07)' : 'transparent',
-                      borderBottom: '1px solid rgba(14,165,233,0.04)',
+                      background: i === activeIdx ? 'rgba(102,192,244,0.07)' : 'transparent',
+                      borderBottom: '1px solid rgba(102,192,244,0.04)',
                       transition: 'background 0.1s',
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.background='rgba(14,165,233,0.07)'; setActiveIdx(i) }}
+                    onMouseEnter={e => { e.currentTarget.style.background='rgba(102,192,244,0.07)'; setActiveIdx(i) }}
                     onMouseLeave={e => { if (activeIdx !== i) e.currentTarget.style.background='transparent' }}
                   >
                     <img
@@ -366,17 +415,17 @@ export default function Navbar() {
                       alt={game.title}
                       onError={e => e.target.src='https://placehold.co/264x352/111116/94F5D8?text='}
                       style={{ width: 32, height: 42, objectFit: 'cover', borderRadius: 6, flexShrink: 0,
-                               border: '1px solid rgba(14,165,233,0.1)' }}
+                               border: '1px solid rgba(102,192,244,0.1)' }}
                     />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{
                         fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                        fontWeight: 700, fontSize: '0.88rem', color: '#0ea5e9',
+                        fontWeight: 700, fontSize: '0.88rem', color: 'var(--accent)',
                         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       }}>{game.title}</div>
                       <div style={{
                         fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                        fontSize: '0.65rem', color: 'rgba(14,165,233,0.35)', marginTop: 2,
+                        fontSize: '0.65rem', color: 'rgba(102,192,244,0.35)', marginTop: 2,
                       }}>
                         {[game.year, game.genres?.[0], game.platforms?.[0]].filter(Boolean).join(' · ')}
                       </div>
@@ -384,7 +433,7 @@ export default function Navbar() {
                     {game.rating > 0 && (
                       <div style={{
                         fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                        fontSize: '0.72rem', color: 'rgba(14,165,233,0.5)', flexShrink: 0,
+                        fontSize: '0.72rem', color: 'rgba(102,192,244,0.5)', flexShrink: 0,
                       }}> {game.rating}</div>
                     )}
                   </div>
@@ -396,12 +445,12 @@ export default function Navbar() {
                     padding: '10px 24px', cursor: 'pointer', textAlign: 'center',
                     fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
                     fontSize: '0.75rem', fontWeight: 700,
-                    color: 'rgba(14,165,233,0.45)',
-                    borderTop: '1px solid rgba(14,165,233,0.06)',
+                    color: 'rgba(102,192,244,0.45)',
+                    borderTop: '1px solid rgba(102,192,244,0.06)',
                     transition: 'color 0.15s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.color='#0ea5e9'}
-                  onMouseLeave={e => e.currentTarget.style.color='rgba(14,165,233,0.45)'}
+                  onMouseEnter={e => e.currentTarget.style.color='var(--accent)'}
+                  onMouseLeave={e => e.currentTarget.style.color='rgba(102,192,244,0.45)'}
                 >
                   See all results for "{q}" →
                 </div>
@@ -412,9 +461,9 @@ export default function Navbar() {
             {q.length > 1 && !searching && results.length === 0 && (
               <div style={{
                 padding: '16px 24px',
-                borderTop: '1px solid rgba(14,165,233,0.08)',
+                borderTop: '1px solid rgba(102,192,244,0.08)',
                 fontFamily: '"Helvetica Neue",Helvetica,Arial,sans-serif',
-                fontSize: '0.8rem', color: 'rgba(14,165,233,0.3)',
+                fontSize: '0.8rem', color: 'rgba(102,192,244,0.3)',
                 textAlign: 'center',
               }}>
                 No games found for "{q}"

@@ -22,8 +22,6 @@ export const useAuthStore = create((set, get) => ({
         await get().fetchProfile(session.user.id)
       } else if (event === 'SIGNED_OUT') {
         set({ user: null, profile: null, loading: false })
-      } else {
-        set({ loading: false })
       } else if (event === 'TOKEN_REFRESHED' && session?.user) {
         set({ user: session.user })
       }

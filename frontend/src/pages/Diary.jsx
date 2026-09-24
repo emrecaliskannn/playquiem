@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { getDiaryEntries, deleteLog, updateLog } from '../lib/db'
@@ -6,7 +6,7 @@ import { Spinner } from '../components/ui'
 import toast from 'react-hot-toast'
 
 const PLACEHOLDER = 'https://placehold.co/264x352/0f1c2e/0ea5e9?text='
-const TEAL = '#0ea5e9'
+const TEAL = 'var(--accent)'
 
 const PRESET_TAGS = [
   'Platinum Trophy', 'Completed', '100%', 'DLC', 'Replay',
@@ -26,7 +26,7 @@ function StarInput({ value, onChange, size = 'lg' }) {
           onMouseEnter={() => setHover(n)}
           onMouseLeave={() => setHover(0)}
           className="transition-transform hover:scale-110 cursor-pointer bg-transparent border-none outline-none"
-          style={{ color: n <= (hover || value) ? '#f5c518' : '#26263a' }}
+          style={{ color: n <= (hover || value) ? '#f5c518' : 'var(--border-solid)' }}
         >★</button>
       ))}
     </div>
@@ -40,9 +40,9 @@ function TagPill({ label, active, onClick }) {
       className="px-2.5 py-1 rounded-full text-[0.68rem] font-medium
                  border transition-all cursor-pointer"
       style={{
-        background:   active ? 'rgba(14,165,233,0.15)' : 'transparent',
-        borderColor:  active ? 'rgba(14,165,233,0.5)'  : 'rgba(38,38,58,1)',
-        color:        active ? TEAL : '#52527a',
+        background:   active ? 'rgba(102,192,244,0.15)' : 'transparent',
+        borderColor:  active ? 'rgba(102,192,244,0.5)'  : 'rgba(38,38,58,1)',
+        color:        active ? TEAL : 'var(--text3)',
       }}>
       {label}
     </button>
@@ -70,7 +70,7 @@ function DiaryRow({ entry, onDelete, onEdit }) {
             {day}
           </div>
           <div className="text-[0.6rem] font-bold tracking-widest"
-               style={{ color: 'rgba(14,165,233,0.45)' }}>
+               style={{ color: 'rgba(102,192,244,0.45)' }}>
             {month}
           </div>
         </div>
@@ -85,13 +85,13 @@ function DiaryRow({ entry, onDelete, onEdit }) {
                      cursor-pointer hover:opacity-80 transition-opacity"
         />
 
-        {/* Title + meta */}
+        {/* Title + meta + hover actions */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span
               onClick={() => entry.igdb_id && nav(`/game/${entry.igdb_id}`)}
               className="font-semibold text-sm text-white hover:text-teal
-                         transition-colors cursor-pointer truncate max-w-[200px]"
+                         transition-colors cursor-pointer truncate max-w-[140px] sm:max-w-[200px]"
               title={entry.title}>
               {entry.title}
             </span>
@@ -107,13 +107,31 @@ function DiaryRow({ entry, onDelete, onEdit }) {
                 {entry.status}
               </span>
             )}
+            {/* Edit + Delete — title'ın yanında, hover'da görünür */}
+            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-1">
+              <button
+                onClick={() => onEdit(entry)}
+                className="w-6 h-6 rounded flex items-center justify-center text-xs
+                           text-muted hover:text-white hover:bg-white/10 transition-colors">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button
+                onClick={() => onDelete(entry.id)}
+                className="w-6 h-6 rounded flex items-center justify-center text-xs
+                           text-muted hover:text-red hover:bg-red/10 transition-colors">
+                ×
+              </button>
+            </div>
           </div>
           {/* Tags */}
           {tags.length > 0 && (
             <div className="flex gap-1 flex-wrap mt-0.5">
               {tags.map(t => (
                 <span key={t} className="text-[0.6rem] px-1.5 py-0.5 rounded"
-                      style={{ background: 'rgba(14,165,233,0.08)', color: TEAL }}>
+                      style={{ background: 'rgba(102,192,244,0.08)', color: TEAL }}>
                   {t}
                 </span>
               ))}
@@ -121,43 +139,35 @@ function DiaryRow({ entry, onDelete, onEdit }) {
           )}
         </div>
 
-        {/* Stars */}
-        <div className="flex-shrink-0 flex gap-px text-sm">
+        {/* Yıldızlar — sabit genişlik, hiç kaymaz */}
+        <div className="flex-shrink-0 flex gap-px text-sm hidden sm:flex" style={{ width: '5.5rem', justifyContent: 'flex-end' }}>
           {[1,2,3,4,5].map(n => (
-            <span key={n} style={{ color: n <= entry.rating ? '#f5c518' : '#26263a' }}>★</span>
+            <span key={n} style={{ color: n <= entry.rating ? '#f5c518' : 'var(--border-solid)' }}>★</span>
+          ))}
+        </div>
+        {/* Mobilde sadece dolu yıldızlar */}
+        <div className="flex-shrink-0 flex gap-px text-sm sm:hidden">
+          {[1,2,3,4,5].map(n => (
+            <span key={n} style={{ color: n <= entry.rating ? '#f5c518' : 'transparent', fontSize:'0.7rem' }}>★</span>
           ))}
         </div>
 
-        {/* Review indicator */}
-        {entry.review && (
-          <button
-            onClick={() => setExpanded(e => !e)}
-            className="flex-shrink-0 w-6 h-6 rounded flex items-center justify-center
-                       text-[0.7rem] transition-colors cursor-pointer"
-            style={{
-              background: expanded ? 'rgba(14,165,233,0.15)' : 'rgba(255,255,255,0.05)',
-              color: expanded ? TEAL : '#52527a',
-            }}
-            title="Read review">
-            
-          </button>
-        )}
-
-        {/* Actions — show on hover */}
-        <div className="flex-shrink-0 flex gap-1 opacity-0 group-hover:opacity-100
-                        transition-opacity">
-          <button
-            onClick={() => onEdit(entry)}
-            className="w-6 h-6 rounded flex items-center justify-center text-xs
-                       text-muted hover:text-white hover:bg-white/10 transition-colors">
-            ✏
-          </button>
-          <button
-            onClick={() => onDelete(entry.id)}
-            className="w-6 h-6 rounded flex items-center justify-center text-xs
-                       text-muted hover:text-red hover:bg-red/10 transition-colors">
-            ×
-          </button>
+        {/* Review butonu — her zaman yer tutar */}
+        <div className="flex-shrink-0" style={{ width: '2.25rem', paddingRight: '0.5rem' }}>
+          {entry.review && (
+            <button
+              onClick={() => setExpanded(e => !e)}
+              className="w-6 h-6 rounded flex items-center justify-center text-[0.7rem] transition-colors cursor-pointer"
+              style={{
+                background: expanded ? 'rgba(102,192,244,0.15)' : 'rgba(255,255,255,0.05)',
+                color: expanded ? TEAL : 'var(--text3)',
+              }}
+              title="Read review">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
@@ -166,7 +176,7 @@ function DiaryRow({ entry, onDelete, onEdit }) {
         <div className="px-16 pb-3">
           <p className="text-[0.8rem] text-white/65 leading-relaxed
                         border-l-2 pl-3 italic"
-             style={{ borderColor: 'rgba(14,165,233,0.3)' }}>
+             style={{ borderColor: 'rgba(102,192,244,0.3)' }}>
             "{entry.review}"
           </p>
         </div>
@@ -268,7 +278,7 @@ function EditModal({ entry, onSave, onClose }) {
             <div
               onClick={() => setReplayed(r => !r)}
               className="w-9 h-5 rounded-full transition-colors relative flex-shrink-0"
-              style={{ background: replayed ? 'rgba(14,165,233,0.3)' : '#26263a' }}>
+              style={{ background: replayed ? 'rgba(102,192,244,0.3)' : 'var(--border-solid)' }}>
               <div className="absolute top-0.5 w-4 h-4 rounded-full transition-transform bg-white"
                    style={{ left: replayed ? 'calc(100% - 18px)' : '2px' }} />
             </div>
@@ -324,7 +334,7 @@ function EditModal({ entry, onSave, onClose }) {
           <button onClick={handleSave}
             className="w-full font-bold py-3 rounded-xl text-sm
                        transition-opacity hover:opacity-90"
-            style={{ background: TEAL, color: '#09090f' }}>
+            style={{ background: TEAL, color: 'var(--bg)' }}>
             Save Entry ✓
           </button>
         </div>
@@ -342,13 +352,22 @@ export default function Diary() {
   const [editEntry, setEditEntry] = useState(null)
   const [filterYear, setFilterYear] = useState('')
 
-  useEffect(() => {
+  const loadEntries = useCallback(() => {
     if (!user) { nav('/auth'); return }
     getDiaryEntries().then(data => {
       setEntries(data)
       setLoading(false)
     })
   }, [user])
+
+  useEffect(() => { loadEntries() }, [loadEntries])
+
+  // Sayfaya geri dönünce yenile
+  useEffect(() => {
+    const onVisible = () => { if (document.visibilityState === 'visible') loadEntries() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [loadEntries])
 
   const handleDelete = async id => {
     if (!confirm('Remove this diary entry?')) return
@@ -420,9 +439,9 @@ export default function Diary() {
           <button onClick={() => setFilterYear('')}
             className="px-4 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
             style={{
-              background:   !filterYear ? 'rgba(14,165,233,0.15)' : 'transparent',
-              borderColor:  !filterYear ? 'rgba(14,165,233,0.5)'  : '#26263a',
-              color:        !filterYear ? TEAL : '#52527a',
+              background:   !filterYear ? 'rgba(102,192,244,0.15)' : 'transparent',
+              borderColor:  !filterYear ? 'rgba(102,192,244,0.5)'  : 'var(--border-solid)',
+              color:        !filterYear ? TEAL : 'var(--text3)',
             }}>
             All Time
           </button>
@@ -430,9 +449,9 @@ export default function Diary() {
             <button key={y} onClick={() => setFilterYear(y)}
               className="px-4 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
               style={{
-                background:   filterYear === y ? 'rgba(14,165,233,0.15)' : 'transparent',
-                borderColor:  filterYear === y ? 'rgba(14,165,233,0.5)'  : '#26263a',
-                color:        filterYear === y ? TEAL : '#52527a',
+                background:   filterYear === y ? 'rgba(102,192,244,0.15)' : 'transparent',
+                borderColor:  filterYear === y ? 'rgba(102,192,244,0.5)'  : 'var(--border-solid)',
+                color:        filterYear === y ? TEAL : 'var(--text3)',
               }}>
               {y}
             </button>
@@ -453,7 +472,7 @@ export default function Diary() {
           <p className="text-muted text-sm mt-2">Log games to build your diary</p>
           <button onClick={() => nav('/games')}
             className="mt-5 px-5 py-2 rounded-xl text-sm font-bold transition-opacity hover:opacity-90"
-            style={{ background: TEAL, color: '#09090f' }}>
+            style={{ background: TEAL, color: 'var(--bg)' }}>
             Browse Games
           </button>
         </div>
@@ -468,7 +487,7 @@ export default function Diary() {
                   style={{ color: TEAL }}>
               {monthLabel}
             </span>
-            <div className="flex-1 h-px" style={{ background: 'rgba(14,165,233,0.15)' }} />
+            <div className="flex-1 h-px" style={{ background: 'rgba(102,192,244,0.15)' }} />
             <span className="text-muted text-[0.68rem]">{monthEntries.length} entries</span>
           </div>
 
@@ -479,9 +498,9 @@ export default function Diary() {
               <div className="w-12 text-[0.6rem] font-bold tracking-widest text-muted text-center">DATE</div>
               <div className="w-8" />
               <div className="flex-1 text-[0.6rem] font-bold tracking-widest text-muted">GAME</div>
-              <div className="text-[0.6rem] font-bold tracking-widest text-muted">RATING</div>
-              <div className="w-6" />
-              <div className="w-14" />
+              <div className="text-[0.6rem] font-bold tracking-widest text-muted text-right flex-shrink-0 hidden sm:block" style={{ width: '5.5rem' }}>RATING</div>
+              <div className="text-[0.6rem] font-bold tracking-widest text-muted text-right flex-shrink-0 sm:hidden">★</div>
+              <div style={{ width: '2.25rem', flexShrink: 0 }} />
             </div>
 
             {monthEntries.map(entry => (

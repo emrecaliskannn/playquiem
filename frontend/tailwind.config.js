@@ -4,14 +4,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg:     '#070b12',
-        surf:   '#0f1c2e',
+        bg:     '#09090f',
+        surf:   '#13131e',
         surf2:  '#17171e',
         surf3:  '#1e1e28',
         border: 'rgba(148,245,216,0.1)',
-        mint:   '#0ea5e9',
-        teal:   '#0ea5e9',
-        accent: '#0ea5e9',
+        mint:   '#60a5fa',
+        teal:   '#60a5fa',
+        accent: '#60a5fa',
         gold:   '#F5C842',
         red:    '#E84545',
         green:  '#2DC653',
