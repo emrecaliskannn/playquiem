@@ -57,7 +57,7 @@ export function GameCard({ game, onLog, logged }) {
   const T = 'var(--accent)'
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%', paddingBottom: 14 /* breathing room before the next row */ }}>
       {/* Image wrapper — strict aspect ratio */}
       <div
         onClick={() => nav(`/game/${game.id}`)}
