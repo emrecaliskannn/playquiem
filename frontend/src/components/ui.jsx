@@ -98,12 +98,13 @@ export function GameCard({ game, onLog, logged }) {
           fontFamily: F, fontSize: '0.76rem', fontWeight: 700,
           color: hov ? T : 'rgba(255,255,255,0.82)',
           lineHeight: '1.3',
-          height: '2.6em', /* exactly 2 lines */
+          height: '2.6em', /* exactly 2 lines (no vertical padding, so both fit) */
           overflow: 'hidden',
           display: '-webkit-box',
           WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
-          padding: '6px 1px 4px',
+          margin: '7px 0 8px',
+          padding: '0 1px',
           cursor: 'pointer',
           transition: 'color 0.15s',
         }}
